@@ -1,0 +1,206 @@
+{
+  "license": "CC0-1.0",
+  "description": "FreePats samples recorded from DX7 emulators Hexter and Dexed; trimmed to at most four seconds, converted to mono 32kHz PCM, gain-balanced and faded at the end. These are not recordings of DX7 hardware.",
+  "samples": [
+    {
+      "bank": "ep-soft",
+      "midi": 48,
+      "file": "ep-soft-48.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano1/main/samples/C3v60.flac",
+      "sha256": "5e5fb4c1a9bb9fc57883f092aa77fb92f8d8324cad8a51ff290f8ac71930033a",
+      "gain": 0.44636,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-soft",
+      "midi": 60,
+      "file": "ep-soft-60.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano1/main/samples/C4v60.flac",
+      "sha256": "5c8320505b5bd05da678c25f1980f268c1109c35e13ccd3bb0686012ea6cc71f",
+      "gain": 0.39391,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-soft",
+      "midi": 72,
+      "file": "ep-soft-72.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano1/main/samples/C5v60.flac",
+      "sha256": "4d88b1e0d72c5e813183cbd7de2f803dcfcdece3532fbadc60cbb1da39ebe62a",
+      "gain": 0.29076,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-soft",
+      "midi": 84,
+      "file": "ep-soft-84.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano1/main/samples/C6v60.flac",
+      "sha256": "ae436c34d0871d4b9ff21afd064d49d7d21bb1add7d54a17245537e415de2664",
+      "gain": 0.36073,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-classic",
+      "midi": 48,
+      "file": "ep-classic-48.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano1/main/samples/C3v100.flac",
+      "sha256": "254cdab282187d626de651f2fff3166a3294f0f0d8447e1ebe1fd1071c475cf6",
+      "gain": 0.37479,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-classic",
+      "midi": 60,
+      "file": "ep-classic-60.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano1/main/samples/C4v100.flac",
+      "sha256": "0881f6c15ad3341204ca48f5d350fa69e3c99dbedb60f838fe8e90a0893412be",
+      "gain": 0.58287,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-classic",
+      "midi": 72,
+      "file": "ep-classic-72.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano1/main/samples/C5v100.flac",
+      "sha256": "c6188d3550dc55b307c5af91b410b19995ed8b3678e1cb1790e399e17e12d64d",
+      "gain": 0.60035,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-classic",
+      "midi": 84,
+      "file": "ep-classic-84.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano1/main/samples/C6v100.flac",
+      "sha256": "dbca98558e996de143a4db77fa696c9939b1d38adfd51f24461b29a12f88dbd4",
+      "gain": 0.45285,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-bright",
+      "midi": 48,
+      "file": "ep-bright-48.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano2/main/samples/C3v80.flac",
+      "sha256": "0e0499fe22f3ce63ca3845417d01f09b91e41cb9671fda20f8c2af94d37d0bcb",
+      "gain": 0.45882,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-bright",
+      "midi": 60,
+      "file": "ep-bright-60.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano2/main/samples/C4v80.flac",
+      "sha256": "961a4c07975ce7a75a1f724daa269788db7d985aaa3a91d7d421bd9ffb9cf732",
+      "gain": 0.66619,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-bright",
+      "midi": 72,
+      "file": "ep-bright-72.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano2/main/samples/C5v80.flac",
+      "sha256": "6c292c7268c14053b9089365da1cdd6ef08e1457b160d8cb2d5816e8df3b3285",
+      "gain": 0.45599,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "ep-bright",
+      "midi": 84,
+      "file": "ep-bright-84.wav",
+      "source": "https://raw.githubusercontent.com/freepats/fm-piano2/main/samples/C6v80.flac",
+      "sha256": "49c6b6d2c404be92b0382f6b863653d8febf2b58b82a3340418dbf30cff3b11f",
+      "gain": 0.50146,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "brass",
+      "midi": 48,
+      "file": "brass-48.wav",
+      "source": "https://raw.githubusercontent.com/freepats/synth-brass-2/main/samples/C3.flac",
+      "sha256": "4c40423e78e08db131e0f9e3ef074824d4c83ef834d1cbcd2d055577281741f9",
+      "gain": 0.3245,
+      "frames": 84705,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "brass",
+      "midi": 60,
+      "file": "brass-60.wav",
+      "source": "https://raw.githubusercontent.com/freepats/synth-brass-2/main/samples/C4.flac",
+      "sha256": "4ea6ea676e88a2cd5791e91742497982580ebd12d9cdb95be2b1e9c0b871ec72",
+      "gain": 0.34906,
+      "frames": 84705,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "brass",
+      "midi": 72,
+      "file": "brass-72.wav",
+      "source": "https://raw.githubusercontent.com/freepats/synth-brass-2/main/samples/C5.flac",
+      "sha256": "a319a05215af08e652b52dcadbe694c84fa8361a56148bad4e0781aeacb8d59f",
+      "gain": 0.35559,
+      "frames": 84705,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "brass",
+      "midi": 84,
+      "file": "brass-84.wav",
+      "source": "https://raw.githubusercontent.com/freepats/synth-brass-2/main/samples/C6.flac",
+      "sha256": "e7039163e82c51baf2d85886d90fdb967eaf4e52a645a2d8e8a7af092df11791",
+      "gain": 0.37065,
+      "frames": 84705,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "crystal",
+      "midi": 48,
+      "file": "crystal-48.wav",
+      "source": "https://raw.githubusercontent.com/freepats/synth-crystal/main/samples/C3.flac",
+      "sha256": "d48cf882096901a1784c2af3827c8900b40c14b5cb0a517ba1a8baac2842d375",
+      "gain": 0.23787,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "crystal",
+      "midi": 60,
+      "file": "crystal-60.wav",
+      "source": "https://raw.githubusercontent.com/freepats/synth-crystal/main/samples/C4.flac",
+      "sha256": "e623d40e23a6b59d3dac0ab4db64a5834d4e240294c1e8f2bc2a3f2d672deee5",
+      "gain": 0.23584,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "crystal",
+      "midi": 72,
+      "file": "crystal-72.wav",
+      "source": "https://raw.githubusercontent.com/freepats/synth-crystal/main/samples/C5.flac",
+      "sha256": "490bfd8751b4b5f1f80a7efabaf8740c49818ecb6e4033d9a44fd18b54268600",
+      "gain": 0.23536,
+      "frames": 128000,
+      "sampleRate": 32000
+    },
+    {
+      "bank": "crystal",
+      "midi": 84,
+      "file": "crystal-84.wav",
+      "source": "https://raw.githubusercontent.com/freepats/synth-crystal/main/samples/C6.flac",
+      "sha256": "39c2fc326d95678435b4e481d21ffd49e7dd9be65195bc52c591fb0a34bf47d2",
+      "gain": 0.23573,
+      "frames": 128000,
+      "sampleRate": 32000
+    }
+  ]
+}
