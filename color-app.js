@@ -1,13 +1,28 @@
 import {WEAVES,patternRow,getWeave,updateCustom} from './weave-presets.js?v=library-3';
 import {colorSong,paletteSong,hslToHex,normalizeHex,colorLoop,weaveLoop,STEP} from './color-model.js?v=library-3';
 import {ColorAudio} from './color-audio.js?v=softness-1';
+import {readSettings} from './settings.js';
 const field=document.querySelector('#color-field'),score=document.querySelector('#score'),picker=document.querySelector('#picker'),sat=document.querySelector('#saturation'),playButton=document.querySelector('#play'),status=document.querySelector('#status'),sound=new ColorAudio(),paletteDialog=document.querySelector('#palette-dialog');
-let patternColors=[...getWeave('flanders').colors],patternSelected=0;
-const paletteOverrides=new Map(),instrumentOverrides=new Map();
+function readSession(){
+ try {
+  const state=JSON.parse(sessionStorage.getItem('mglaa-instrument-session')||'{}');
+  const ids=new Set([...WEAVES.map(p=>p.id),'custom']);
+  const palettes=(state.palettes??[]).filter(([id,colors])=>ids.has(id)&&Array.isArray(colors)&&colors.length===2&&colors.every(c=>typeof c==='string'&&normalizeHex(c)));
+  const instruments=(state.instruments??[]).filter(([id,pair])=>ids.has(id)&&Array.isArray(pair)&&pair.length===2&&Number.isInteger(pair[0])&&pair[0]>=0&&pair[0]<16&&Number.isInteger(pair[1])&&pair[1]>=16&&pair[1]<32);
+  if(Array.isArray(state.custom)&&state.custom.length===32&&state.custom.every(n=>Number.isInteger(n)&&n>=0&&n<4))state.custom.forEach((shaft,column)=>updateCustom(column,shaft));
+  return {weave:ids.has(state.weave)?state.weave:'flanders',palettes,instruments};
+ } catch {return {weave:'flanders',palettes:[],instruments:[]};}
+}
+const savedSession=readSession(),paletteOverrides=new Map(savedSession.palettes),instrumentOverrides=new Map(savedSession.instruments);
+let patternColors=[...(paletteOverrides.get(savedSession.weave)??getWeave(savedSession.weave).colors??getWeave('flanders').colors)],patternSelected=0;
+function applySoundSettings(){const settings=readSettings();sound.setSoftness(settings.softness);sound.setVolume(settings.volume);}
+applySoundSettings();
+addEventListener('pageshow',applySoundSettings);
+addEventListener('storage',applySoundSettings);
 const patternPalette=document.querySelector('#pattern-palette');
 let selectedColor=colorSong(patternColors[0]),position={h:selectedColor.h,s:selectedColor.s,l:selectedColor.l},desired=paletteSong(patternColors),scheduled=desired,shown=desired,playing=false,starting=false,token=0,step=0,nextTime=0,displayStep=-1,timer=null,visualQueue=[],dragging=false,satDragging=false,unit=12,weaveUnit=9,cols=64,rows=48;
 let loopLength=64,initialized=false,draftColumns=32;
-const weaveSelect=document.querySelector('#weave-select'),draftCanvas=document.querySelector('#weave-draft'),draftViewport=document.querySelector('#draft-viewport');let selectedWeave='flanders',scheduledWeave=selectedWeave,visualRow=0;
+const weaveSelect=document.querySelector('#weave-select'),draftCanvas=document.querySelector('#weave-draft'),draftViewport=document.querySelector('#draft-viewport');let selectedWeave=savedSession.weave,scheduledWeave=selectedWeave,visualRow=0;
 const history=[];let lastRowTime=0,frozenOffset=0;
 weaveSelect.replaceChildren();
 for(const book of [1,2]){const group=document.createElement('optgroup');group.label=book===1?'Part One':'Part Two';for(const preset of WEAVES.filter(p=>p.book===book)){const option=document.createElement('option');option.value=preset.id;option.textContent=preset.name;group.append(option);}weaveSelect.append(group);}
@@ -83,8 +98,8 @@ function choose(hex,coordinates=null){
 }
 
 function schedule(){if(!playing)return;while(nextTime<sound.context.currentTime+.12){if(step===0){scheduledWeave=selectedWeave;scheduled=desired;sound.chord(scheduled,nextTime);}for(const event of scheduled.events.filter(e=>Math.floor(e.step)===step))sound.note(event,nextTime+(event.step-step)*STEP);visualQueue.push({time:nextTime,step,song:scheduled,weave:scheduledWeave});nextTime+=STEP;step=(step+1)%scheduled.length;}}
-async function start(){if(playing||starting)return;starting=true;const ticket=++token;try{await sound.start();if(ticket!==token){sound.stop();return;}playing=true;scheduled=desired;shown=desired;step=0;displayStep=-1;nextTime=sound.context.currentTime+.08;visualQueue=[];schedule();timer=setInterval(schedule,25);playButton.setAttribute('aria-pressed','true');playButton.setAttribute('aria-label','Pause music');status.textContent='Playing two colors';document.body.dataset.playing='true';update();}catch(error){status.textContent='Audio could not start. Try again.';console.error(error);}finally{starting=false;}}
-function stop(){token++;if(playing&&history.length)frozenOffset=Math.max(0,Math.min(1,(sound.context.currentTime-lastRowTime)/STEP));playing=false;clearInterval(timer);sound.stop();visualQueue=[];playButton.setAttribute('aria-pressed','false');playButton.setAttribute('aria-label','Start music');status.textContent='Paused';document.body.dataset.playing='false';update();draw();}
+async function start(){if(playing||starting)return;starting=true;const ticket=++token;try{await sound.start();if(ticket!==token){sound.stop();return;}playing=true;scheduled=desired;shown=desired;step=0;displayStep=-1;nextTime=sound.context.currentTime+.08;visualQueue=[];schedule();timer=setInterval(schedule,25);playButton.setAttribute('aria-pressed','true');playButton.setAttribute('aria-label','Pause music');playButton.querySelector('.play-label').textContent='pause';status.textContent='Playing two colors';document.body.dataset.playing='true';update();}catch(error){status.textContent='Audio could not start. Try again.';console.error(error);}finally{starting=false;}}
+function stop(){token++;if(playing&&history.length)frozenOffset=Math.max(0,Math.min(1,(sound.context.currentTime-lastRowTime)/STEP));playing=false;clearInterval(timer);sound.stop();visualQueue=[];playButton.setAttribute('aria-pressed','false');playButton.setAttribute('aria-label','Start music');playButton.querySelector('.play-label').textContent='play';status.textContent='Paused';document.body.dataset.playing='false';update();draw();}
 function point(e){const r=field.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y=Math.max(0,Math.min(1,(e.clientY-r.top)/r.height)),coordinates={h:Math.min(359.99,x*360),s:position.s,l:1-y};choose(hslToHex(coordinates.h,coordinates.s,coordinates.l),coordinates);}
 field.addEventListener('pointerdown',e=>{dragging=true;field.setPointerCapture(e.pointerId);field.focus();point(e);start();});field.addEventListener('pointermove',e=>{if(dragging)point(e);});for(const event of ['pointerup','pointercancel','lostpointercapture'])field.addEventListener(event,()=>dragging=false);
 field.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();const c={h:(position.h+(e.key==='ArrowRight'?3:e.key==='ArrowLeft'?-3:0)+360)%360,s:position.s,l:Math.max(0,Math.min(1,position.l+(e.key==='ArrowUp'?.02:e.key==='ArrowDown'?-.02:0)))};choose(hslToHex(c.h,c.s,c.l),c);start();});
@@ -94,8 +109,11 @@ sat.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key
 picker.addEventListener('input',()=>{choose(picker.value);start();});
 playButton.addEventListener('click',()=>playing||starting?stop():start());document.querySelector('#palette-close').addEventListener('click',()=>paletteDialog.close());
 addEventListener('keydown',e=>{if(e.code==='Space'&&!e.target.closest('input,select,button,dialog')){e.preventDefault();playing?stop():start();}if(e.key==='Escape'&&!document.querySelector('dialog[open]'))stop();});
-document.querySelector('#info').addEventListener('click',e=>{e.preventDefault();document.querySelector('#instructions').showModal();});document.querySelector('#close').addEventListener('click',()=>document.querySelector('#instructions').close());document.querySelector('#volume').addEventListener('input',e=>{if(playing)sound.setVolume(Number(e.target.value));else sound.volume=Number(e.target.value);});
-document.querySelector('#softness').addEventListener('input',e=>{const value=Number(e.target.value);sound.setSoftness(value/100);document.querySelector('#softness-value').textContent=value+'%';});
+function saveSession(){
+ try {sessionStorage.setItem('mglaa-instrument-session',JSON.stringify({weave:selectedWeave,palettes:[...paletteOverrides],instruments:[...instrumentOverrides],custom:[...getWeave('custom').threading]}));} catch {}
+}
+document.querySelector('#info').addEventListener('click',saveSession);
+addEventListener('pagehide',saveSession);
 addEventListener('pagehide',stop);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});addEventListener('resize',resize);
 function frame(){if(playing)while(visualQueue.length&&visualQueue[0].time<=sound.context.currentTime){const v=visualQueue.shift();shown=v.song;displayStep=v.step;lastRowTime=v.time;history.unshift({song:v.song,step:v.step,weave:v.weave,row:++visualRow});history.length=Math.min(history.length,2048);update();}draw();requestAnimationFrame(frame);}
 update();resize();requestAnimationFrame(frame);

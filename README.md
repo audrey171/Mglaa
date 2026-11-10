@@ -22,10 +22,11 @@ For the automated checks, install Node.js and run `npm test`.
 
 - Pattern name: select a book draft or Custom.
 - Two squares: edit the pattern and background colors.
-- Square beside the palette or Space: play/pause.
+- Blue underlined play/pause at the bottom left, or Space: start and pause.
 - Upper-right 8 × 4 grid: melody instruments on the left, pad instruments on the right.
 - Custom draft: click/drag to change a column’s shaft; arrow keys also edit.
-- About: instructions, softness (100% by default), and volume.
+- About at the bottom right opens an index linking to Instructions, How it works, and Source. All pages use Times New Roman on white, with blue underlined links.
+- Instructions includes softness (100% by default) and volume. Sound settings are saved in this browser; pattern, palette, instrument choices, and the custom draft survive About navigation during the tab’s session.
 
 All top drafts share a display width and end on a whole square. Short sequences repeat; longer ones are visually cropped. The full source draft still generates the textile and melody.
 

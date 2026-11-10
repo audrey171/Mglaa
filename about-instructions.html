@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Instructions — mglaa</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=1">
+  <style>
+    html{background:#fff;color:#000;font-family:"Times New Roman",Times,serif;font-size:20px}
+    body{margin:16px;max-width:850px;line-height:1.4}
+    a,a:visited{color:#0000ff;text-decoration:underline}
+    h1{font-size:1.5em;margin:1em 0 .6em}h3{font-size:1em;margin:1.4em 0 .4em}
+    p{margin:.7em 0}li{margin:.4em 0}dt{font-weight:bold;margin-top:1em}dd{margin-left:0}
+    .equation{margin:1em 0 1em 24px;overflow-wrap:anywhere}
+    input,output{font:inherit}input[type=range]{width:180px;max-width:45vw;accent-color:#000;vertical-align:middle}
+    label{display:inline-block;min-width:90px}output{display:inline-block;min-width:3em}
+    :focus-visible{outline:2px solid #0000ff;outline-offset:3px}
+    footer{margin:2em 0}
+  </style>
+</head>
+<body>
+<nav><a href="./">mglaa</a> / <a href="about.html">about</a></nav>
+<main>
+  <h1>Instructions</h1>
+  <p>Choose a pattern and two colors. Together they make a repeating textile and a tune.</p>
+  <dl>
+    <dt>Pattern</dt>
+    <dd>Click the blue pattern name at the top left to choose one of 48 drafts from <i>Miniature Patterns for Hand Weaving</i>, or choose Custom. Each named pattern starts with its own two colors and a melody/pad instrument pairing.</dd>
+    <dt>Threading grid</dt>
+    <dd>The four rows at the top show which shaft each warp thread belongs to. Read the rows from bottom to top as shafts 1–4. In Custom, click or drag to move the filled square in each column. Left and right arrows choose a column; up and down arrows change its shaft. Custom repeats over 32 columns. Short drafts repeat across the display; long drafts are cut off at a whole square. Their full sequences still generate the pattern.</dd>
+    <dt>Two colors</dt>
+    <dd>Click either small color square below the threading grid. The first colors the pattern; the second colors the ground. In the palette, move horizontally for hue and vertically for lightness. The strip below changes saturation. Click the single color square above the palette for an exact color picker. Arrow keys also move through the palette and saturation strip. Both colors contribute to the music.</dd>
+    <dt>Instruments</dt>
+    <dd>The upper-right grid has 32 squares. Its left four columns choose among 16 melody sounds; its right four columns choose among 16 sustained pad sounds. One square stays selected in each half. Click to select, or move with the arrow keys while a square is focused. Your palette and instrument choices stay with each pattern during this tab’s session.</dd>
+    <dt>Play and pause</dt>
+    <dd>Click the blue underlined play/pause control at the bottom left, or press Space. About stays at the bottom right. Escape closes an open palette; otherwise it pauses the instrument. Changing a color, draft, or instrument lets you shape the sound while it plays. Color and pattern changes restart the phrase immediately, with a soft transition. Sound pauses when you leave the instrument.</dd>
+    <dt>The scrolling pattern</dt>
+    <dd>New rows enter at the top and move down as the music plays. The small draft and its repeating harness sequence generate the larger pattern. Each square is a thread crossing, rather than an individual musical note.</dd>
+  </dl>
+  <p><label for="softness">Softness</label> <input id="softness" type="range" min="0" max="100" value="100"> <output id="softness-value" for="softness">100%</output></p>
+  <p><label for="volume">Volume</label> <input id="volume" type="range" min="0" max="100" value="55"> <output id="volume-value" for="volume">55%</output></p>
+  <p>Softness starts at 100%. Higher values soften the attack and reduce high frequencies. These settings are saved in this browser and apply when you return to the instrument. Press play to listen.</p>
+</main>
+<footer><a href="about.html">back to about</a></footer>
+<script type="module" src="about.js"></script>
+</body>
+</html>
