@@ -10,11 +10,11 @@ function readSession(){
   const palettes=(state.palettes??[]).filter(([id,colors])=>ids.has(id)&&Array.isArray(colors)&&colors.length===2&&colors.every(c=>typeof c==='string'&&normalizeHex(c)));
   const instruments=(state.instruments??[]).filter(([id,pair])=>ids.has(id)&&Array.isArray(pair)&&pair.length===2&&Number.isInteger(pair[0])&&pair[0]>=0&&pair[0]<16&&Number.isInteger(pair[1])&&pair[1]>=16&&pair[1]<32);
   if(Array.isArray(state.custom)&&state.custom.length===32&&state.custom.every(n=>Number.isInteger(n)&&n>=0&&n<4))state.custom.forEach((shaft,column)=>updateCustom(column,shaft));
-  return {weave:ids.has(state.weave)?state.weave:'flanders',palettes,instruments};
- } catch {return {weave:'flanders',palettes:[],instruments:[]};}
+  return {weave:ids.has(state.weave)?state.weave:'pond',palettes,instruments};
+ } catch {return {weave:'pond',palettes:[],instruments:[]};}
 }
 const savedSession=readSession(),paletteOverrides=new Map(savedSession.palettes),instrumentOverrides=new Map(savedSession.instruments);
-let patternColors=[...(paletteOverrides.get(savedSession.weave)??getWeave(savedSession.weave).colors??getWeave('flanders').colors)],patternSelected=0;
+let patternColors=[...(paletteOverrides.get(savedSession.weave)??getWeave(savedSession.weave).colors??getWeave('pond').colors)],patternSelected=0;
 function applySoundSettings(){const settings=readSettings();sound.setSoftness(settings.softness);sound.setVolume(settings.volume);}
 applySoundSettings();
 addEventListener('pageshow',applySoundSettings);
@@ -78,7 +78,7 @@ function draw(){
  const fraction=history.length?(playing?Math.max(0,Math.min(1,(sound.context.currentTime-lastRowTime)/STEP)):frozenOffset):0;
  ctx.save();ctx.beginPath();ctx.rect(0,0,cols*weaveUnit,rows*weaveUnit);ctx.clip();ctx.translate(0,Math.floor(fraction*weaveUnit)-weaveUnit);
  for(let r=0;r<rows+2;r++){
-  const entry=history[r],pixels=entry?patternRow(entry.weave,-entry.row,cols).map(over=>over?patternColors[0]:patternColors[1]):null;
+  const entry=history[r],pixels=entry?patternRow(entry.weave,-entry.row,cols).map(over=>entry.song.colors[over?0:1]):null;
   for(let x=0;x<cols;x++)square(ctx,x,r,pixels?.[x],weaveUnit);
  }
  ctx.strokeStyle='#000';ctx.lineWidth=1;for(let x=0;x<=cols;x++){ctx.beginPath();ctx.moveTo(x*weaveUnit+.5,0);ctx.lineTo(x*weaveUnit+.5,(rows+2)*weaveUnit);ctx.stroke();}for(let y=0;y<=rows+2;y++){ctx.beginPath();ctx.moveTo(0,y*weaveUnit+.5);ctx.lineTo(cols*weaveUnit,y*weaveUnit+.5);ctx.stroke();}ctx.restore();ctx.strokeStyle='#000';ctx.strokeRect(.5,.5,cols*weaveUnit,rows*weaveUnit);

@@ -4,7 +4,7 @@ A two-color musical instrument built from weaving drafts.
 
 Website: [mglaa.com](https://mglaa.com)
 
-Choose from 48 patterns in Josephine E. Estes’s *Miniature Patterns for Hand Weaving*, Parts One and Two, or draw a custom threading. Two colors determine the visual palette and shared musical harmony. Each pattern has its own default palette and melody/pad instrument pairing. Palette and pattern changes update the tune immediately.
+A new session opens on Pond Lily. Choose from 48 patterns in Josephine E. Estes’s *Miniature Patterns for Hand Weaving*, Parts One and Two, or draw a custom threading. Two colors determine the visual palette and shared musical harmony. Each pattern has its own default palette and melody/pad instrument pairing. Palette and pattern changes update the tune immediately. Each new textile row keeps the palette used when it was made, so color changes leave a scrolling timeline below.
 
 ## Run locally
 
