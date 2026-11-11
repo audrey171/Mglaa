@@ -43,3 +43,7 @@
 #footer #play,#footer #play[aria-pressed=true]{margin-right:auto}
 
 
+
+#saved-swatches{display:grid;grid-template-columns:repeat(16,var(--cell));width:max-content;border-top:1px solid #000;border-left:1px solid #000;margin-top:var(--cell)}
+#saved-swatches button{box-sizing:border-box;width:var(--cell);height:var(--cell);padding:0;border:0;border-right:1px solid #000;border-bottom:1px solid #000;background:#fff;cursor:pointer}
+#saved-swatches button[aria-pressed=true]{outline:2px solid #000;outline-offset:2px;z-index:1}

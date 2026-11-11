@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {PatternTimeline} from './timeline.js';
-import {getWeave} from './weave-presets.js';
-import {createPatternPDF} from './pattern-pdf.js';
-import {PDFDocument} from './vendor/pdf-lib.esm.min.js';
+import {PatternTimeline} from '../timeline.js';
+import {getWeave} from '../weave-presets.js';
+import {createPatternPDF} from '../pattern-pdf.js';
+import {PDFDocument} from '../vendor/pdf-lib.esm.min.js';
 
 test('pattern changes and custom edits cannot change earlier rows',()=>{
   const timeline=new PatternTimeline(),draft={id:'custom',threading:[0,1,2,3],picks:[[0,1],[2,3]]},colors=['#112233','#DDEEFF'];

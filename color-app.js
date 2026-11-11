@@ -38,7 +38,36 @@ function applyInstruments(){const pair=instrumentOverrides.get(selectedWeave)??g
 applyInstruments();
 function makeSong(){return weaveLoop(patternColors,getWeave(selectedWeave),loopLength);}
 const panelPalette=document.querySelector('#panel-palette');
-function selectColor(index){patternSelected=index;const c=colorSong(patternColors[index]);position={h:c.h,s:c.s||.7,l:c.l};drawPicker();update();}
+function selectColor(index){stopSavedLoop();patternSelected=index;const c=colorSong(patternColors[index]);position={h:c.h,s:c.s||.7,l:c.l};drawPicker();update();}
+const savedSwatches=document.querySelector('#saved-swatches');
+let savedColors=Array(16).fill(null),savedSelection=-1,savedLoop=-1,savedLoopTarget=0,nextSavedChange=0;
+try {const stored=JSON.parse(localStorage.getItem('mglaa-saved-colors')||'[]');if(Array.isArray(stored))savedColors=savedColors.map((_,i)=>typeof stored[i]==='string'?normalizeHex(stored[i]):null);} catch {}
+function renderSavedColors(){
+ [...savedSwatches.children].forEach((button,i)=>{button.style.backgroundColor=savedColors[i]??'#fff';button.setAttribute('aria-pressed',String(i===(savedLoop>=0?savedLoop:savedSelection)));button.setAttribute('aria-label',savedColors[i]?`Saved color ${i+1}: ${savedColors[i]}. Apply and cycle; tap selected slot again to replace.`:`Save current color in slot ${i+1}`);});
+}
+function stopSavedLoop(){savedLoop=-1;renderSavedColors();}
+for(let i=0;i<16;i++){
+ const button=document.createElement('button');button.type='button';
+ button.addEventListener('click',()=>{
+  if(!savedColors[i]||i===(savedLoop>=0?savedLoop:savedSelection)){
+   stopSavedLoop();savedColors[i]=patternColors[patternSelected];savedSelection=i;
+   try {localStorage.setItem('mglaa-saved-colors',JSON.stringify(savedColors));} catch {}
+   status.textContent='Color saved';
+  }else{
+   choose(savedColors[i],null,true);savedSelection=i;savedLoopTarget=patternSelected;
+   savedLoop=savedColors.filter(Boolean).length>1?i:-1;nextSavedChange=Date.now()+6000;start();
+  }
+  renderSavedColors();
+ });savedSwatches.append(button);
+}
+renderSavedColors();
+function advanceSavedColors(){
+ if(!playing||savedLoop<0||Date.now()<nextSavedChange)return;
+ const filled=savedColors.map((color,i)=>color?i:-1).filter(i=>i>=0);
+ if(filled.length<2){stopSavedLoop();return;}
+ savedLoop=filled[(filled.indexOf(savedLoop)+1)%filled.length];savedSelection=savedLoop;nextSavedChange=Date.now()+6000;
+ patternSelected=savedLoopTarget;choose(savedColors[savedLoop],null,true);renderSavedColors();
+}
 patternColors.forEach((color,index)=>{
  const button=document.createElement('button');button.type='button';button.className='pixel-button';button.style.backgroundColor=color;
  button.addEventListener('click',()=>{selectColor(index);paletteDialog.showModal();});patternPalette.append(button);
@@ -72,7 +101,7 @@ function resize(){
 }
 function drawDraft(){const preset=getWeave(selectedWeave),count=draftColumns;fit(draftCanvas,count*unit+1,4*unit+1);const ctx=draftCanvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,count*unit+1,4*unit+1);for(let y=0;y<4;y++)for(let x=0;x<count;x++)square(ctx,x,y,preset.threading[x%preset.threading.length]===3-y?patternColors[0]:patternColors[1]);draftCanvas.setAttribute('aria-label',preset.name+' threading draft, '+count+' visible columns, '+preset.threading.length+' columns per repeat');}
 function previewWeave(){preview.length=0;if(!timeline.length)visualRow=0;for(let row=0;row<rows+2;row++)preview.push(snapshotRow(getWeave(selectedWeave),row,patternColors,cols));if(!timeline.length)frozenOffset=1;}
-weaveSelect.addEventListener('change',()=>{selectedWeave=weaveSelect.value;visualRow=0;applyInstruments();patternColors=[...(paletteOverrides.get(selectedWeave)??getWeave(selectedWeave).colors??patternColors)];drawDraft();refreshMusic();previewWeave();draw();draftViewport.scrollLeft=0;document.body.dataset.weave=selectedWeave;draftCanvas.style.cursor=selectedWeave==='custom'?'crosshair':'default';update();});
+weaveSelect.addEventListener('change',()=>{stopSavedLoop();selectedWeave=weaveSelect.value;visualRow=0;applyInstruments();patternColors=[...(paletteOverrides.get(selectedWeave)??getWeave(selectedWeave).colors??patternColors)];drawDraft();refreshMusic();previewWeave();draw();draftViewport.scrollLeft=0;document.body.dataset.weave=selectedWeave;draftCanvas.style.cursor=selectedWeave==='custom'?'crosshair':'default';update();});
 let draftDragging=false,draftColumn=0;
 function paintDraft(e){
  const r=draftCanvas.getBoundingClientRect(),p=getWeave('custom'),column=Math.max(0,Math.min(draftColumns-1,Math.floor((e.clientX-r.left)/unit)))%p.threading.length,shaft=3-Math.max(0,Math.min(3,Math.floor((e.clientY-r.top)/unit)));
@@ -117,15 +146,15 @@ score.addEventListener('pointerdown',e=>{if(playing)return;score.focus();history
 score.addEventListener('pointermove',e=>{if(!historyDrag||e.pointerId!==historyDrag.id)return;scrollHistory((historyDrag.y-e.clientY)/weaveUnit);historyDrag.y=e.clientY;});
 for(const type of ['pointerup','pointercancel','lostpointercapture'])score.addEventListener(type,()=>historyDrag=null);
 score.addEventListener('keydown',e=>{if(playing)return;const moves={ArrowDown:1,ArrowUp:-1,PageDown:rows,PageUp:-rows,Home:-Infinity,End:Infinity};if(e.key in moves){e.preventDefault();scrollHistory(moves[e.key]);}});
-function choose(hex,coordinates=null){
- const valid=normalizeHex(hex);if(!valid)return;
+function choose(hex,coordinates=null,fromSaved=false){
+ const valid=normalizeHex(hex);if(!valid)return;if(!fromSaved)stopSavedLoop();
  patternColors[patternSelected]=valid;paletteOverrides.set(selectedWeave,[...patternColors]);
  const c=colorSong(valid);position=coordinates??{h:c.h,s:c.s,l:c.l};
  refreshMusic();
  update();drawPicker();drawDraft();draw();
 }
 
-function schedule(){if(!playing)return;advanceTimeline();const now=sound.context.currentTime;if(nextTime<now-.1){const missed=Math.ceil((now-nextTime)/STEP);step=(step+missed)%scheduled.length;nextTime+=missed*STEP;sound.chord(scheduled,now);}while(nextTime<now+(document.hidden?1.2:.12)){if(step===0){scheduledWeave=selectedWeave;scheduled=desired;sound.chord(scheduled,nextTime);}for(const event of scheduled.events.filter(e=>Math.floor(e.step)===step))sound.note(event,nextTime+(event.step-step)*STEP);visualQueue.push({time:nextTime,step,song:scheduled,weave:scheduledWeave});nextTime+=STEP;step=(step+1)%scheduled.length;}}
+function schedule(){if(!playing)return;advanceSavedColors();advanceTimeline();const now=sound.context.currentTime;if(nextTime<now-.1){const missed=Math.ceil((now-nextTime)/STEP);step=(step+missed)%scheduled.length;nextTime+=missed*STEP;sound.chord(scheduled,now);}while(nextTime<now+(document.hidden?1.2:.12)){if(step===0){scheduledWeave=selectedWeave;scheduled=desired;sound.chord(scheduled,nextTime);}for(const event of scheduled.events.filter(e=>Math.floor(e.step)===step))sound.note(event,nextTime+(event.step-step)*STEP);visualQueue.push({time:nextTime,step,song:scheduled,weave:scheduledWeave});nextTime+=STEP;step=(step+1)%scheduled.length;}}
 async function start(){if(playing||starting)return;historyOffset=0;score.dataset.scrollRow='0';starting=true;const ticket=++token;try{await sound.start();if(ticket!==token){sound.stop();return;}playing=true;scheduled=desired;shown=desired;step=0;displayStep=-1;nextTime=sound.context.currentTime+.08;visualQueue=[];schedule();timer=setInterval(schedule,25);playButton.setAttribute('aria-pressed','true');playButton.setAttribute('aria-label','Pause music');playButton.querySelector('.play-label').textContent='pause';status.textContent='Playing two colors';document.body.dataset.playing='true';update();}catch(error){status.textContent='Audio could not start. Try again.';console.error(error);}finally{starting=false;}}
 function stop(){if(playing)advanceTimeline();token++;if(playing&&timeline.length)frozenOffset=Math.max(0,Math.min(1,(sound.context.currentTime-lastRowTime)/STEP));playing=false;clearInterval(timer);sound.stop();visualQueue=[];playButton.setAttribute('aria-pressed','false');playButton.setAttribute('aria-label','Start music');playButton.querySelector('.play-label').textContent='play';status.textContent='Paused';document.body.dataset.playing='false';update();draw();}
 function point(e){const r=field.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y=Math.max(0,Math.min(1,(e.clientY-r.top)/r.height)),coordinates={h:Math.min(359.99,x*360),s:position.s,l:1-y};choose(hslToHex(coordinates.h,coordinates.s,coordinates.l),coordinates);}
@@ -149,11 +178,11 @@ exportButton.addEventListener('click',async()=>{
   addEventListener('message',onReady);
   readyTimer=setTimeout(()=>reject(new Error('Preview did not open.')),30000);
  });
- previewWindow=window.open('export-preview.html','_blank');
+ previewWindow=window.open('export-preview.html?id='+crypto.randomUUID(),'_blank');
  if(!previewWindow){clearTimeout(readyTimer);removeEventListener('message',onReady);exportButton.removeAttribute('aria-busy');update();status.textContent='Allow a new tab to preview your pattern.';return;}
  try {
   const snapshot=new PatternTimeline(timeline.toJSON());
-  const [{createPatternPDF}]=await Promise.all([import('./pattern-pdf.js?v=full-width-1'),ready]);
+  const [{createPatternPDF}]=await Promise.all([import('./pattern-pdf.js?v=brand-1'),ready]);
   const bytes=await createPatternPDF(snapshot.newestFirst(),Math.max(cols,snapshot.width),{yieldPage:()=>new Promise(resolve=>setTimeout(resolve,0))});
   if(!previewWindow.closed)previewWindow.postMessage({type:'mglaa-preview-pdf',bytes,filename:'mglaa-pattern-'+new Date().toISOString().replace(/[:.]/g,'-')+'.pdf'},location.origin,[bytes.buffer]);
   status.textContent='Pattern PDF preview opened in a new tab';

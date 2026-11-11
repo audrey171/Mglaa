@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>How it works — mglaa</title>
+  <title>Mglaa</title>
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=1">
   <style>
     html{background:#fff;color:#000;font-family:"Times New Roman",Times,serif;font-size:20px}
@@ -17,9 +17,23 @@
     :focus-visible{outline:2px solid #0000ff;outline-offset:3px}
     footer{margin:2em 0}
   </style>
+
+<meta name="description" content="An instrument that turns colors and weaving patterns into music.">
+<meta property="og:title" content="Mglaa">
+<meta property="og:description" content="An instrument that turns colors and weaving patterns into music.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mglaa.com/about-how-it-works.html">
+<meta property="og:image" content="https://mglaa.com/social.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1740">
+<meta property="og:image:height" content="1240">
+<meta property="og:image:alt" content="A pixel textile with purple, green, cream, and olive weaving patterns.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mglaa">
+<meta name="twitter:image" content="https://mglaa.com/social.png">
 </head>
 <body>
-<nav><a href="./">mglaa</a> / <a href="about.html">about</a></nav>
+<nav><a href="./">Mglaa</a> / <a href="about.html">about</a></nav>
 <main>
   <h1>How it works</h1>
   <p>Two colors set the harmony. Their hex digits form a melody, and the weaving pattern moves it through the chord. The same colors and pattern produce the same sequence.</p>
@@ -36,7 +50,7 @@
   <p>Each color first makes its own phrase. Every fourth step is kept; hex digits and saturation decide the remaining rests:</p>
   <p class="equation">play at step <i>j</i> if <i>j</i> mod 4 = 0, or<br>[(<i>d</i><sub>(j+3) mod 6</sub> + 3(<i>j</i> mod 3)) mod 16]/16 ≤ 0.12 + 0.68<i>s</i></p>
   <p>The colors take alternating turns in a shared 16-step phrase. A second saturation-based test adds rests, and each note is fitted to the nearest shared-chord tone. More saturation generally allows more notes through.</p>
-  <p>This mapping is a composition rule made for mglaa, not an inherent relationship between color and pitch.</p>
+  <p>This mapping is a composition rule made for Mglaa, not an inherent relationship between color and pitch.</p>
   <h3>3. Pattern → melodic movement</h3>
   <p>The same draft drives image and sound. <i>T</i> assigns shafts (0–3) to columns; <i>P</i> lists the two lowered shafts in each row:</p>
   <p class="equation"><i>D</i>(<i>x</i>, <i>y</i>) = 1[<i>T</i><sub>x</sub> ∈ <i>P</i><sub>y</sub>]</p>

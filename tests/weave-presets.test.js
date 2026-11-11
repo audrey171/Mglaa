@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {WEAVES,patternRow,weaveRow,CUSTOM,updateCustom} from './weave-presets.js';
+import {WEAVES,patternRow,weaveRow,CUSTOM,updateCustom} from '../weave-presets.js';
 
 test('source A repeats keep the original square motif proportions',()=>{
  assert.deepEqual(['flanders','pond','dimes','chariot'].map(id=>WEAVES.find(p=>p.id===id)).map(p=>[p.id,p.threading.length,p.picks.length]),[

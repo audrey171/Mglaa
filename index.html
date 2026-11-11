@@ -1,8 +1,22 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>mglaa — color instrument</title><link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=1"><link rel="stylesheet" href="style.css?v=session-5"></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mglaa</title><link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=1"><link rel="stylesheet" href="style.css?v=saved-2">
+<meta name="description" content="An instrument that turns colors and weaving patterns into music.">
+<meta property="og:title" content="Mglaa">
+<meta property="og:description" content="An instrument that turns colors and weaving patterns into music.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mglaa.com/">
+<meta property="og:image" content="https://mglaa.com/social.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1740">
+<meta property="og:image:height" content="1240">
+<meta property="og:image:alt" content="A pixel textile with purple, green, cream, and olive weaving patterns.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mglaa">
+<meta name="twitter:image" content="https://mglaa.com/social.png">
+</head><body>
 <select id="weave-select" aria-label="Weaving pattern"><option value="flanders">Flower of Flanders</option><option value="pond" selected>Pond Lily</option><option value="dimes">Dimes and Dollars</option><option value="chariot">Chariot Wheel No. 2</option><option value="custom">Custom</option></select><div id="draft-viewport"><canvas tabindex="0" id="weave-draft" aria-label="Four-harness threading draft for the selected pattern"></canvas></div>
 <div id="voice-grid" role="group" aria-label="Instruments: sixteen melody sounds on the left and sixteen pad sounds on the right"></div><div id="toolbar"><div id="pattern-palette" role="group" aria-label="Pattern and background colors control the music"></div></div><canvas id="score" tabindex="0" aria-label="Scrolling textile of the music. New rows enter at the top; older patterns remain in the rows below. Space starts or pauses. When paused, scroll or drag to review earlier rows."></canvas>
 <footer id="footer"><button id="play" class="pixel-button" aria-label="Start music" aria-pressed="false"><span class="play-label">play</span></button><button id="export" type="button" aria-label="Export entire pattern as PDF">export</button><a id="info" href="about.html">about</a></footer><output id="status" class="sr-only" aria-live="polite"></output>
-<dialog id="palette-dialog" aria-label="Choose a color"><div class="picker-tools"><div id="panel-palette" role="group" aria-label="Edit either palette color"></div><button id="palette-close" class="pixel-button" aria-label="Close color palette"></button></div><canvas id="color-field" tabindex="0" role="application" aria-label="Color grid. Left and right change hue; up and down change lightness."></canvas><canvas id="saturation" tabindex="0" role="slider" aria-label="Saturation" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"></canvas></dialog>
+<dialog id="palette-dialog" aria-label="Choose a color"><div class="picker-tools"><div id="panel-palette" role="group" aria-label="Edit either palette color"></div><button id="palette-close" class="pixel-button" aria-label="Close color palette"></button></div><canvas id="color-field" tabindex="0" role="application" aria-label="Color grid. Left and right change hue; up and down change lightness."></canvas><canvas id="saturation" tabindex="0" role="slider" aria-label="Saturation" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"></canvas><div id="saved-swatches" role="group" aria-label="Saved colors"></div></dialog>
 
 
-<script type="module" src="color-app.js?v=session-5"></script></body></html>
+<script type="module" src="color-app.js?v=saved-2"></script></body></html>

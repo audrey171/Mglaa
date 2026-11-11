@@ -1,9 +1,9 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {existsSync} from 'node:fs';
-import {INSTRUMENTS,MELODY_INSTRUMENTS,PAD_INSTRUMENTS,SAMPLE_BANKS,SAMPLE_ROOTS,InstrumentSampler} from './voices.js';
+import {INSTRUMENTS,MELODY_INSTRUMENTS,PAD_INSTRUMENTS,SAMPLE_BANKS,SAMPLE_ROOTS,InstrumentSampler} from '../voices.js';
 test('32 selectable voices have complete sample banks or sustained pad engines',()=>{
  assert.equal(INSTRUMENTS.length,32);assert.equal(MELODY_INSTRUMENTS.length,16);assert.equal(PAD_INSTRUMENTS.length,16);assert.ok(PAD_INSTRUMENTS.every(p=>p.kind==='pad'));
  assert.equal(new Set(MELODY_INSTRUMENTS.map(p=>JSON.stringify(p))).size,16);assert.equal(new Set(PAD_INSTRUMENTS.map(p=>JSON.stringify(p))).size,16);
- for(const bank of SAMPLE_BANKS)for(const root of SAMPLE_ROOTS)assert.ok(existsSync(new URL(`samples/${bank}-${root}.wav`,import.meta.url)));
+ for(const bank of SAMPLE_BANKS)for(const root of SAMPLE_ROOTS)assert.ok(existsSync(new URL(`../samples/${bank}-${root}.wav`,import.meta.url)));
 });
 test('every instrument starts a valid voice and polyphony remains bounded',()=>{
  const param=()=>({value:0,setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){},cancelScheduledValues(){},setTargetAtTime(){}});

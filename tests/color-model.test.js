@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {normalizeHex,hslToHex,hexToHsl,colorSong,paletteSong,patternSong,colorLoop,textileRow,STEP} from './color-model.js';
+import {normalizeHex,hslToHex,hexToHsl,colorSong,paletteSong,patternSong,colorLoop,textileRow,STEP} from '../color-model.js';
 test('hex parsing is strict and color conversion round trips',()=>{
  assert.equal(normalizeHex(' 7b80d4 '),'#7B80D4');assert.equal(normalizeHex('#GGGGGG'),null);
  for(const hex of ['#000000','#FFFFFF','#7B80D4','#FF0000','#15E3A4']){const {h,s,l}=hexToHsl(hex);assert.equal(hslToHex(h,s,l),hex);}

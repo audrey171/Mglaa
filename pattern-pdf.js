@@ -4,7 +4,7 @@ import {PDFDocument,rgb,StandardFonts,PDFString} from './vendor/pdf-lib.esm.min.
 export async function createPatternPDF(rows,width,{yieldPage=()=>Promise.resolve()}={}){
   if(!Number.isInteger(width)||width<1)throw new Error('A pattern needs at least one column.');
   const doc=await PDFDocument.create();
-  doc.setTitle('mglaa - pattern');doc.setCreator('mglaa.com');
+  doc.setTitle('Mglaa');doc.setCreator('Mglaa.com');
   const font=await doc.embedFont(StandardFonts.TimesRoman),blue=rgb(0,0,1);
   const pageWidth=595.28,pageHeight=841.89,margin=18,cell=(pageWidth-margin*2)/width;
   const perPage=Math.max(1,Math.floor((pageHeight-margin*2)/cell)),ink=rgb(0,0,0),colors=new Map();
@@ -26,7 +26,7 @@ export async function createPatternPDF(rows,width,{yieldPage=()=>Promise.resolve
     const top=pageHeight-margin,bottom=top-height*cell,thickness=Math.min(.5,cell/9);
     for(let x=0;x<=width;x++)page.drawLine({start:{x:margin+x*cell,y:bottom},end:{x:margin+x*cell,y:top},thickness,color:ink});
     for(let y=0;y<=height;y++)page.drawLine({start:{x:margin,y:top-y*cell},end:{x:pageWidth-margin,y:top-y*cell},thickness,color:ink});
-    const label='mglaa.com',labelWidth=font.widthOfTextAtSize(label,9);
+    const label='Mglaa.com',labelWidth=font.widthOfTextAtSize(label,9);
     page.drawText(label,{x:margin,y:8,size:9,font,color:blue});
     page.drawLine({start:{x:margin,y:7},end:{x:margin+labelWidth,y:7},thickness:.35,color:blue});
     page.node.addAnnot(doc.context.register(doc.context.obj({Type:'Annot',Subtype:'Link',Rect:[margin,6,margin+labelWidth,17],Border:[0,0,0],A:{Type:'Action',S:'URI',URI:PDFString.of('https://mglaa.com')}})));
