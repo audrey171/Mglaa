@@ -15,6 +15,7 @@
     input,output{font:inherit}input[type=range]{width:180px;max-width:45vw;accent-color:#000;vertical-align:middle}
     label{display:inline-block;min-width:90px}output{display:inline-block;min-width:3em}
     :focus-visible{outline:2px solid #0000ff;outline-offset:3px}
+    .settings-row{display:flex;flex-wrap:wrap;gap:0 24px}.settings-row p{white-space:nowrap}
     footer{margin:2em 0}
   </style>
 
@@ -43,7 +44,7 @@
     <dt>Colors</dt>
     <dd>Open either swatch. The grid changes hue and lightness; the strip below changes saturation. The two small swatches switch which color you’re editing. Click outside to close.</dd>
     <dt>Saved colors</dt>
-    <dd>Tap an empty slot in the bottom row to save a color. Tap a saved swatch to apply it; tap the selected slot again to replace it. With two or more saved colors, applying one starts a six-second loop through the row. Picking a color manually or changing patterns stops the loop. Saved colors stay between visits.</dd>
+    <dd>Tap an empty slot in the bottom row to save a color. Tap a saved swatch to apply it; tap the selected slot again to replace it. With two or more saved colors, applying one starts a loop through the row. Picking a color manually or changing patterns stops the loop. Saved colors stay between visits.</dd>
     <dt>Sound</dt>
     <dd>The upper-right grid selects instruments: melody on the left, pad on the right. Both follow the harmony made by your colors.</dd>
     <dt>Playback</dt>
@@ -51,11 +52,15 @@
     <dt>Export</dt>
     <dd>Export opens a PDF preview in a new tab; download saves it. The file includes all rows you’ve played, including those off-screen, and excludes the initial preview.</dd>
   </dl>
+  <div class="settings-row">
   <p><label for="softness">Softness</label> <input id="softness" type="range" min="0" max="100" value="100"> <output id="softness-value" for="softness">100%</output></p>
+  <p><label for="colorInterval">Color loop</label> <input id="colorInterval" type="range" min="2" max="30" step="1" value="6" aria-describedby="loop-help"> <output id="colorInterval-value" for="colorInterval">6 s</output></p>
+  </div>
   <p><label for="volume">Volume</label> <input id="volume" type="range" min="0" max="100" value="55"> <output id="volume-value" for="volume">55%</output></p>
-  <p>Softness softens the attack and reduces high frequencies. Both settings are saved in this browser.</p>
+  <p id="loop-help">Color loop sets the seconds between saved colors. Lower is faster.</p>
+  <p>Softness softens the attack and reduces high frequencies. Settings are saved in this browser.</p>
 </main>
 <footer><a href="about.html">back to about</a></footer>
-<script type="module" src="about.js"></script>
+<script type="module" src="about.js?v=color-speed-1"></script>
 </body>
 </html>

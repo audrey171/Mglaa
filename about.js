@@ -1,12 +1,12 @@
-import {readSettings,saveSettings} from './settings.js';
+import {readSettings,saveSettings} from './settings.js?v=color-speed-1';
 const settings=readSettings();
-for(const name of ['softness','volume']){
+for(const name of ['softness','volume','colorInterval']){
   const input=document.querySelector('#'+name),output=document.querySelector('#'+name+'-value');
-  input.value=Math.round(settings[name]*100);
-  output.value=input.value+'%';
+  const scale=name==='colorInterval'?1:100,suffix=name==='colorInterval'?' s':'%';
+  input.value=Math.round(settings[name]*scale);
+  output.value=input.value+suffix;
   input.addEventListener('input',()=>{
-    settings[name]=Number(input.value)/100;
-    saveSettings(settings);
-    output.value=input.value+'%';
+    saveSettings({[name]:Number(input.value)/scale});
+    output.value=input.value+suffix;
   });
 }

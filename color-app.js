@@ -1,7 +1,7 @@
 import {WEAVES,patternRow,getWeave,updateCustom} from './weave-presets.js?v=library-3';
 import {colorSong,paletteSong,hslToHex,normalizeHex,colorLoop,weaveLoop,STEP} from './color-model.js?v=library-3';
 import {ColorAudio} from './color-audio.js?v=background-1';
-import {readSettings} from './settings.js';
+import {readSettings} from './settings.js?v=color-speed-1';
 import {PatternTimeline,snapshotRow} from './timeline.js?v=recorded-1';
 const field=document.querySelector('#color-field'),score=document.querySelector('#score'),sat=document.querySelector('#saturation'),playButton=document.querySelector('#play'),status=document.querySelector('#status'),sound=new ColorAudio(),paletteDialog=document.querySelector('#palette-dialog');
 const randomWeave=()=>WEAVES[Math.floor(Math.random()*WEAVES.length)].id;
@@ -17,7 +17,8 @@ function readSession(){
 }
 const savedSession=readSession(),paletteOverrides=new Map(savedSession.palettes),instrumentOverrides=new Map(savedSession.instruments);
 let patternColors=[...(paletteOverrides.get(savedSession.weave)??getWeave(savedSession.weave).colors??getWeave('pond').colors)],patternSelected=0;
-function applySoundSettings(){const settings=readSettings();sound.setSoftness(settings.softness);sound.setVolume(settings.volume);}
+let savedColorInterval=6000,nextSavedChange=0;
+function applySoundSettings(){const settings=readSettings();sound.setSoftness(settings.softness);sound.setVolume(settings.volume);const interval=settings.colorInterval*1000;if(interval!==savedColorInterval){savedColorInterval=interval;nextSavedChange=Date.now()+interval;}}
 applySoundSettings();
 addEventListener('pageshow',applySoundSettings);
 addEventListener('storage',applySoundSettings);
@@ -40,7 +41,7 @@ function makeSong(){return weaveLoop(patternColors,getWeave(selectedWeave),loopL
 const panelPalette=document.querySelector('#panel-palette');
 function selectColor(index){if(index!==patternSelected)stopSavedLoop();savedSelection=-1;patternSelected=index;const c=colorSong(patternColors[index]);position={h:c.h,s:c.s||.7,l:c.l};drawPicker();update();}
 const savedSwatches=document.querySelector('#saved-swatches');
-let savedColors=Array(16).fill(null),savedSelection=-1,savedLoop=-1,savedLoopTarget=0,nextSavedChange=0;
+let savedColors=Array(16).fill(null),savedSelection=-1,savedLoop=-1,savedLoopTarget=0;
 try {const stored=JSON.parse(localStorage.getItem('mglaa-saved-colors')||'[]');if(Array.isArray(stored))savedColors=savedColors.map((_,i)=>typeof stored[i]==='string'?normalizeHex(stored[i]):null);} catch {}
 function renderSavedColors(){
  savedSwatches.dataset.looping=String(savedLoop>=0);
@@ -56,7 +57,7 @@ for(let i=0;i<16;i++){
    status.textContent='Color saved';
   }else{
    choose(savedColors[i],null,true);savedSelection=i;savedLoopTarget=patternSelected;
-   savedLoop=savedColors.filter(Boolean).length>1?i:-1;nextSavedChange=Date.now()+6000;start();
+   savedLoop=savedColors.filter(Boolean).length>1?i:-1;nextSavedChange=Date.now()+savedColorInterval;start();
   }
   renderSavedColors();
  });savedSwatches.append(button);
@@ -66,7 +67,7 @@ function advanceSavedColors(){
  if(!playing||savedLoop<0||Date.now()<nextSavedChange)return;
  const filled=savedColors.map((color,i)=>color?i:-1).filter(i=>i>=0);
  if(filled.length<2){stopSavedLoop();return;}
- savedLoop=filled[(filled.indexOf(savedLoop)+1)%filled.length];savedSelection=-1;nextSavedChange=Date.now()+6000;
+ savedLoop=filled[(filled.indexOf(savedLoop)+1)%filled.length];savedSelection=-1;nextSavedChange=Date.now()+savedColorInterval;
  patternSelected=savedLoopTarget;choose(savedColors[savedLoop],null,true);renderSavedColors();
 }
 patternColors.forEach((color,index)=>{
