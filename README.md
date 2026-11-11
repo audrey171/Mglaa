@@ -4,7 +4,7 @@ A two-color musical instrument built from weaving drafts.
 
 Website: [mglaa.com](https://mglaa.com)
 
-A new session opens on Pond Lily. Choose from 48 patterns in Josephine E. Estes’s *Miniature Patterns for Hand Weaving*, Parts One and Two, or draw a custom threading. Two colors determine the visual palette and shared musical harmony. Each pattern has its own default palette and melody/pad instrument pairing. Palette and pattern changes update the tune immediately. Each new textile row keeps the palette used when it was made, so color changes leave a scrolling timeline below.
+A new session opens on Pond Lily. Choose from 48 patterns in Josephine E. Estes’s *Miniature Patterns for Hand Weaving*, Parts One and Two, or draw a custom threading. Two colors determine the visual palette and shared musical harmony. Each pattern has its own default palette and melody/pad instrument pairing. Palette and pattern changes update the tune immediately. Each new textile row keeps its pattern and palette, so changes leave a continuous scrolling timeline below. Earlier rows survive pattern switches and custom edits.
 
 ## Run locally
 
@@ -25,6 +25,8 @@ For the automated checks, install Node.js and run `npm test`.
 - Blue underlined play/pause at the bottom left, or Space: start and pause.
 - Upper-right 8 × 4 grid: melody instruments on the left, pad instruments on the right.
 - Custom draft: click/drag to change a column’s shaft; arrow keys also edit.
+- Export beside About pauses playback and downloads the complete scroll as a vector PDF, including off-screen rows. Pages contain only the pattern and a small blue mglaa.com link.
+- Both colors can be edited from the same palette panel.
 - About at the bottom right opens an index linking to Instructions, How it works, and Source. All pages use Times New Roman on white, with blue underlined links.
 - Instructions includes softness (100% by default) and volume. Sound settings are saved in this browser; pattern, palette, instrument choices, and the custom draft survive About navigation during the tab’s session.
 
@@ -36,7 +38,7 @@ All top drafts share a display width and end on a whole square. Short sequences 
 
 `color-model.js` derives a shared seventh chord from palette hues and saturation, then uses hex digits, lightness, threading, and harness combinations to form a melody. Notes stay in the pad chord at a constant 84 BPM. The textile is a weaving drawdown, not a note-per-square piano roll.
 
-`color-audio.js` and `voices.js` provide softened sample playback and sustained synthesized pads. Sample source attribution and licenses are included in `samples/`.
+`color-audio.js` and `voices.js` provide softened sample playback and sustained synthesized pads. Sample source attribution and licenses are included in `samples/`. PDF export uses pdf-lib 1.17.1 (MIT), bundled locally with its license in `vendor/`. No pattern data is uploaded for export.
 
 ## Pattern sources
 

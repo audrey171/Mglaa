@@ -26,3 +26,18 @@
 #play::after{display:none}
 #play .play-label{display:inline}
 #play:focus-visible{outline:1px solid #0000ff;outline-offset:3px}
+
+#footer{position:absolute;display:flex;align-items:baseline;gap:var(--cell)}
+#footer #play,#footer #play[aria-pressed=true],#footer #info,#footer #export{position:static;inset:auto;margin:0;padding:0;border:0;background:transparent;color:#0000ff;font:16px/1.2 "Times New Roman",Times,serif;text-decoration:underline;text-underline-offset:3px}
+#footer #play{margin-right:auto}
+#export{cursor:pointer}
+#export:disabled{cursor:wait}
+#export:focus-visible{outline:1px solid #0000ff;outline-offset:3px}
+
+#panel-palette{display:flex;gap:var(--cell)}
+#panel-palette .pixel-button{width:calc(var(--cell)*2);height:calc(var(--cell)*2)}
+#panel-palette [aria-pressed=true]{outline:2px solid #000;outline-offset:2px}
+.picker-tools{align-items:center;gap:var(--cell)}
+.picker-tools #picker{margin-left:auto}
+
+#footer #play,#footer #play[aria-pressed=true]{margin-right:auto}
