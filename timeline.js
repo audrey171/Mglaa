@@ -20,6 +20,13 @@ export class PatternTimeline{
     else this.sections.push({draft:copy,colors:[...colors],width,phase,count,key,end:this.length+count});
     this.length+=count;this.width=Math.max(this.width,width);
   }
+  removeOpeningPreview(){
+    const first=this.sections[0];if(!first||first.phase<0)return;
+    const sections=this.toJSON(),trim=Math.min(first.count,first.phase+1);
+    sections[0]={...sections[0],phase:first.phase-trim,count:first.count-trim};
+    const restored=new PatternTimeline(sections.filter(s=>s.count>0));
+    this.sections=restored.sections;this.length=restored.length;this.width=restored.width;
+  }
   newest(index){
     const chronological=this.length-1-index;
     if(chronological<0||chronological>=this.length)return null;

@@ -22,35 +22,31 @@
 <nav><a href="./">mglaa</a> / <a href="about.html">about</a></nav>
 <main>
   <h1>How it works</h1>
-  <p>The same palette and draft produce the same sequence. The mapping is a composition rule made for mglaa: colors choose a harmony, their hex digits make a phrase, and the weaving draft moves that phrase through the chord.</p>
-  <h3>1. Two colors choose a chord</h3>
-  <p>Each color is converted to hue <i>h</i> (0–360°), saturation <i>s</i> (0–1), and lightness <i>l</i> (0–1). Hue is averaged around a circle, weighted by saturation:</p>
-  <p class="equation"><i>x</i> = Σ <i>s</i><sub>i</sub> cos(<i>h</i><sub>i</sub>), &nbsp; <i>y</i> = Σ <i>s</i><sub>i</sub> sin(<i>h</i><sub>i</sub>)<br><i>H</i> = atan2(<i>y</i>, <i>x</i>) mod 360°<br><i>S</i> = (<i>s</i><sub>0</sub> + <i>s</i><sub>1</sub>)/2, &nbsp; <i>L</i> = (<i>l</i><sub>0</sub> + <i>l</i><sub>1</sub>)/2</p>
-  <p>The more saturated color has more influence. If the vectors cancel, the first color’s hue is used. The combined HSL color is rounded to an RGB hex color, then converted back to HSL for the chord calculation below.</p>
-  <p class="equation"><i>k</i> = ⌊<i>H</i>/30⌋<br><i>p</i> = (7<i>k</i>) mod 12<br><i>r</i> = 36 + <i>p</i></p>
-  <p>Each 30° hue sector advances one fifth around the chromatic scale. Pitch class 0 is C, 1 is C♯, and so on. <i>r</i> is the root as a MIDI note number.</p>
-  <p class="equation"><i>I</i> = [0, 3, 7, 10] &nbsp; if <i>S</i> &lt; 0.3 &nbsp; (minor seventh)<br><i>I</i> = [0, 4, 7, 11] &nbsp; otherwise &nbsp; (major seventh)<br>pad = [<i>r</i>, <i>r</i> + 7, <i>r</i> + <i>I</i><sub>3</sub>, <i>r</i> + 12 + <i>I</i><sub>1</sub>]</p>
-  <p>The pad holds this chord. The melody uses only its pitch classes, across several octaves, so the two stay in harmony.</p>
-  <h3>2. Hex digits create notes and rests</h3>
-  <p>A six-digit hex color becomes six integers <i>d</i><sub>0</sub>…<i>d</i><sub>5</sub>, from 0 to 15. For example, #6D2A49 becomes [6, 13, 2, 10, 4, 9]. Each color first makes its own 16-step phrase, using its individual root and chord intervals from the same hue rule.</p>
-  <p class="equation"><i>o</i> = 12 + 12 round(2<i>l</i>)<br><i>a</i><sub>j</sub> = 0 &nbsp; if <i>j</i> mod 8 = 0; &nbsp; otherwise round(3<i>d</i><sub>j mod 6</sub>/15)<br><i>q</i><sub>j</sub> = <i>r</i> + <i>o</i> + <i>I</i><sub>aⱼ</sub></p>
-  <p>Lightness chooses the register: one, two, or three octaves above the individual root. The digit chooses a chord tone. Steps 0 and 8 return to the root tone. Every fourth step is kept; other steps are kept when:</p>
-  <p class="equation">[(<i>d</i><sub>(j+3) mod 6</sub> + 3(<i>j</i> mod 3)) mod 16]/16 ≤ 0.12 + 0.68<i>s</i></p>
-  <p>Call the resulting ordered list of notes <i>E</i><sub>i</sub> for color <i>i</i>. In the shared phrase, the two colors alternate. At step <i>t</i> = 0…15, let <i>i</i> = <i>t</i> mod 2 and <i>u</i> = ⌊<i>t</i>/2⌋. The first turn of each color always sounds. Later turns sound when:</p>
-  <p class="equation"><i>d</i><sub>(u+i) mod 6</sub>/15 ≤ 0.3 + 0.7<i>s</i><sub>i</sub></p>
-  <p>The target is note (<i>u</i> + <i>i</i>) mod length(<i>E</i><sub>i</sub>) from that color’s list. It is fitted to the nearest note of the shared chord between MIDI 48 and 88. Greater saturation generally allows more notes through; lower saturation leaves more rests.</p>
-  <h3>3. The weaving draft reshapes the phrase</h3>
-  <p>Let <i>T</i><sub>x</sub> be the shaft assigned to column <i>x</i>, numbered 0–3 in the equations, and <i>P</i><sub>y</sub> the pair of lowered shafts for row <i>y</i>. Both sequences repeat. The visible textile is:</p>
-  <p class="equation"><i>D</i>(<i>x</i>, <i>y</i>) = 1 &nbsp; if <i>T</i><sub>x</sub> ∈ <i>P</i><sub>y</sub>; &nbsp; otherwise 0</p>
-  <p>A 1 uses the first palette color; a 0 uses the second. The book’s threading and harness sequence create the motif. Each named draft uses one source treadling variation. Border threads and the fine tabby binding rows are omitted to keep the square proportions of the printed pattern diagrams.</p>
-  <p>The musical phrase reads these same two sequences at each sounding step <i>n</i>. Let <i>A</i> be the ascending list of shared-chord notes between MIDI 45 and 81, and <i>b</i> the index of the note in <i>A</i> nearest the target from the color phrase.</p>
-  <p class="equation"><i>δ</i><sub>n</sub> = <i>T</i><sub>n</sub> − 1 + 1[<i>P</i><sub>n,1</sub> − <i>P</i><sub>n,0</sub> &gt; 1]<br><i>m</i><sub>n</sub> = <i>A</i><sub>clamp(b + δₙ, 0, length(A) − 1)</sub></p>
-  <p>1[condition] adds one when the condition is true. The shaft shifts the melody along the chord; a wider harness pair adds another step. The index is clamped at the ends of the available range. Notes are slightly stronger when their shaft belongs to the lowered pair: the level is multiplied by 0.8, otherwise by 0.6. Higher notes are also softened. Instrument presets may shift the result down an octave without changing its chord membership.</p>
-  <h3>4. Time and sound</h3>
-  <p>Tempo stays at 84 beats per minute. Each step is half a beat, about 0.357 seconds:</p>
-  <p class="equation">Δ<i>t</i> = 60/(84 × 2)<br><i>f</i>(<i>m</i>) = 440 × 2<sup>(m − 69)/12</sup> Hz</p>
-  <p>The 16-step color phrase repeats inside a longer loop whose length is set from the window width when the instrument opens. The threading and harness sequences run through their own repeats within it. Each step advances one textile row. The image and music share a draft, but a filled cell does not trigger a separate note.</p>
-  <p>Softness changes the sound rather than the notes or tempo. For softness <i>z</i> between 0 and 1, the sampled melody’s low-pass cutoff is 6500 − 5400<i>z</i> Hz. Attacks grow gentler as softness rises; pads sustain underneath, and a quiet filtered delay lets the melody overlap.</p>
+  <p>Two colors set the harmony. Their hex digits form a melody, and the weaving pattern moves it through the chord. The same colors and pattern produce the same sequence.</p>
+  <h3>1. Color → chord</h3>
+  <p>Each color becomes hue <i>h</i>, saturation <i>s</i>, and lightness <i>l</i>. Hue chooses the chord’s root; saturation chooses major or minor. Lightness sets how high the melody sits.</p>
+  <p>The two hues are blended around the color wheel, with more saturated colors carrying more weight:</p>
+  <p class="equation"><i>H</i> = atan2(Σ <i>s</i><sub>i</sub> sin <i>h</i><sub>i</sub>, Σ <i>s</i><sub>i</sub> cos <i>h</i><sub>i</sub>) mod 360°<br><i>S</i> = (<i>s</i><sub>0</sub> + <i>s</i><sub>1</sub>)/2, &nbsp; <i>L</i> = (<i>l</i><sub>0</sub> + <i>l</i><sub>1</sub>)/2</p>
+  <p>After rounding the blend to hex, each 30° hue sector moves the root one fifth. If the hues cancel, the first color’s hue is used:</p>
+  <p class="equation"><i>r</i> = 36 + (7⌊<i>H</i>/30⌋ mod 12)<br><i>I</i> = [0, 3, 7, 10] if <i>S</i> &lt; 0.3; otherwise [0, 4, 7, 11]<br>pad = [<i>r</i>, <i>r</i> + 7, <i>r</i> + <i>I</i><sub>3</sub>, <i>r</i> + 12 + <i>I</i><sub>1</sub>]</p>
+  <p><i>r</i> is a MIDI note number; <i>I</i> lists semitone intervals for a minor or major seventh chord. The pad holds this harmony, and every melody note stays within it.</p>
+  <h3>2. Hex → phrase</h3>
+  <p>A hex code supplies six numbers from 0–15: #6D2A49 becomes [6, 13, 2, 10, 4, 9]. Each digit selects one of four chord tones. Lightness places it one, two, or three octaves above the root. For each color’s own root and intervals:</p>
+  <p class="equation"><i>o</i> = 12 + 12 round(2<i>l</i>)<br><i>a</i><sub>j</sub> = 0 if <i>j</i> mod 8 = 0; otherwise round(3<i>d</i><sub>j mod 6</sub>/15)<br><i>q</i><sub>j</sub> = <i>r</i> + <i>o</i> + <i>I</i><sub>aⱼ</sub></p>
+  <p>Each color first makes its own phrase. Every fourth step is kept; hex digits and saturation decide the remaining rests:</p>
+  <p class="equation">play at step <i>j</i> if <i>j</i> mod 4 = 0, or<br>[(<i>d</i><sub>(j+3) mod 6</sub> + 3(<i>j</i> mod 3)) mod 16]/16 ≤ 0.12 + 0.68<i>s</i></p>
+  <p>The colors take alternating turns in a shared 16-step phrase. A second saturation-based test adds rests, and each note is fitted to the nearest shared-chord tone. More saturation generally allows more notes through.</p>
+  <p>This mapping is a composition rule made for mglaa, not an inherent relationship between color and pitch.</p>
+  <h3>3. Pattern → melodic movement</h3>
+  <p>The same draft drives image and sound. <i>T</i> assigns shafts (0–3) to columns; <i>P</i> lists the two lowered shafts in each row:</p>
+  <p class="equation"><i>D</i>(<i>x</i>, <i>y</i>) = 1[<i>T</i><sub>x</sub> ∈ <i>P</i><sub>y</sub>]</p>
+  <p>A 1 displays the first color; a 0 displays the second. The shaft shifts the melody along the chord, with a wider harness pair adding one more step:</p>
+  <p class="equation"><i>δ</i><sub>t</sub> = <i>T</i><sub>t</sub> − 1 + 1[<i>P</i><sub>t,1</sub> − <i>P</i><sub>t,0</sub> &gt; 1]<br><i>m</i><sub>t</sub> = <i>A</i><sub>clamp(b + δₜ, 0, |A| − 1)</sub></p>
+  <p><i>A</i> lists shared-chord notes from MIDI 45–81; <i>b</i> locates the nearest note to the color phrase. 1[condition] means 1 when true, 0 otherwise. The pattern changes the melody’s contour while keeping it in harmony.</p>
+  <h3>4. Time → sound</h3>
+  <p>Tempo stays at 84 BPM. Each half-beat adds one textile row; individual squares do not each trigger a note. The phrase repeats within a longer loop set by the opening window width.</p>
+  <p class="equation">Δ<i>t</i> = 60/(84 × 2) ≈ 0.357 s<br><i>f</i>(<i>m</i>) = 440 × 2<sup>(m − 69)/12</sup> Hz<br>melody filter cutoff = 6500 − 5400<i>z</i> Hz</p>
+  <p>The final note <i>m</i> becomes a frequency. Softness <i>z</i> (0–1) lowers the melody’s filter cutoff and softens its attack. Pads and delay let notes overlap without changing the tempo.</p>
 </main>
 <footer><a href="about.html">back to about</a></footer>
 

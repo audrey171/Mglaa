@@ -29,3 +29,13 @@ test('PDF includes every row across page boundaries with a consistent square gri
   assert.match(pdf.getSubject(),/^4097 rows, 100 columns/);
   for(const p of pdf.getPages())assert.deepEqual(p.getSize(),{width:595.28,height:841.89});
 });
+
+// Older sessions may have merged their opening preview and played rows.
+test('legacy opening rows are removed while user rows and subsequent patterns survive',()=>{
+ const timeline=new PatternTimeline();timeline.add(getWeave('pond'),60,['#28594D','#D7E5B3'],100,71);
+ timeline.add(getWeave('flanders'),-1,['#441122','#EEDDAA'],160,5);
+ const played=Array.from({length:15},(_,i)=>timeline.newest(i));
+ timeline.removeOpeningPreview();assert.equal(timeline.length,15);
+ assert.deepEqual([...timeline.newestFirst()],played);
+ timeline.removeOpeningPreview();assert.equal(timeline.length,15);
+});

@@ -2,6 +2,7 @@ import {InstrumentSampler,voiceFor} from './voices.js?v=softness-1';
 export class ColorAudio{
  constructor(){this.context=null;this.sources=new Set();this.pads=[];this.chordId=null;this.volume=.55;this.softness=1;this.melodyInstrument=0;this.padInstrument=16;this.currentSong=null;}
  async start(){
+  try {if(navigator.audioSession)navigator.audioSession.type='playback';} catch {}
   if(!this.context){
    const c=this.context=new AudioContext();this.master=c.createGain();this.master.gain.value=0;
    const limiter=c.createDynamicsCompressor();limiter.threshold.value=-19;limiter.knee.value=20;limiter.ratio.value=3;this.master.connect(limiter);limiter.connect(c.destination);

@@ -35,15 +35,11 @@
 #export:focus-visible{outline:1px solid #0000ff;outline-offset:3px}
 
 #panel-palette{display:flex;gap:var(--cell)}
-#panel-palette .pixel-button{width:calc(var(--cell)*2);height:calc(var(--cell)*2)}
+#panel-palette .pixel-button{width:var(--cell);height:var(--cell)}
 #panel-palette [aria-pressed=true]{outline:2px solid #000;outline-offset:2px}
 .picker-tools{align-items:center;gap:var(--cell)}
-.picker-tools #picker{margin-left:auto}
+.picker-tools #palette-close{margin-left:auto}
 
 #footer #play,#footer #play[aria-pressed=true]{margin-right:auto}
 
-#export-preview{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#fff;color:#000}
-#export-preview[open]{display:flex;flex-direction:column}
-.export-tools{display:flex;justify-content:space-between;padding:16px;flex:none}
-.export-tools button,.export-tools a{border:0;padding:0;background:none;color:#0000ff;text-decoration:underline;font:16px/1.2 "Times New Roman",Times,serif;cursor:pointer}
-#export-document{display:block;flex:1;width:100%;min-height:0;border:0;background:#fff}
+

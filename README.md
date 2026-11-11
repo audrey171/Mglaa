@@ -4,7 +4,7 @@ A two-color musical instrument built from weaving drafts.
 
 Website: [mglaa.com](https://mglaa.com)
 
-A new session opens on Pond Lily. Choose from 48 patterns in Josephine E. Estes’s *Miniature Patterns for Hand Weaving*, Parts One and Two, or draw a custom threading. Two colors determine the visual palette and shared musical harmony. Each pattern has its own default palette and melody/pad instrument pairing. Palette and pattern changes update the tune immediately. Each new textile row keeps its pattern and palette, so changes leave a continuous scrolling timeline below. Earlier rows survive pattern switches and custom edits.
+Each fresh session opens on a random named pattern. Choose from 48 patterns in Josephine E. Estes’s *Miniature Patterns for Hand Weaving*, Parts One and Two, or draw a custom threading. Two colors determine the visual palette and shared musical harmony. Each pattern has its own default palette and melody/pad instrument pairing. Palette and pattern changes update the tune immediately. Each new textile row keeps its pattern and palette, so changes leave a continuous scrolling timeline below. Earlier rows survive pattern switches and custom edits.
 
 ## Run locally
 
@@ -25,8 +25,9 @@ For the automated checks, install Node.js and run `npm test`.
 - Blue underlined play/pause at the bottom left, or Space: start and pause.
 - Upper-right 8 × 4 grid: melody instruments on the left, pad instruments on the right.
 - Custom draft: click/drag to change a column’s shaft; arrow keys also edit.
-- Export beside About pauses playback and downloads the complete scroll as a vector PDF, including off-screen rows. Pages contain only the pattern and a small blue mglaa.com link.
-- Both colors can be edited from the same palette panel.
+- Export beside About opens a PDF preview in a new tab, with a separate download link. It includes recorded rows, including off-screen rows, but excludes the initial preview. Playback may continue in the original tab. Pages contain only the pattern and a small blue mglaa.com link.
+- Both colors can be edited from the same palette panel; phones use mglaa’s grid picker without the native color picker.
+- Switching tabs or apps no longer pauses playback. Browser or operating-system suspension can still interrupt background audio.
 - About at the bottom right opens an index linking to Instructions, How it works, and Source. All pages use Times New Roman on white, with blue underlined links.
 - Instructions includes softness (100% by default) and volume. Sound settings are saved in this browser; pattern, palette, instrument choices, and the custom draft survive About navigation during the tab’s session.
 
