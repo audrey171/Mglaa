@@ -91,7 +91,7 @@ function draw(){
  const fraction=(timeline.length||preview.length)?(playing?Math.max(0,Math.min(1,(sound.context.currentTime-lastRowTime)/STEP)):frozenOffset):0;
  ctx.save();ctx.beginPath();ctx.rect(0,0,cols*weaveUnit,rows*weaveUnit);ctx.clip();ctx.translate(0,Math.floor(fraction*weaveUnit)-weaveUnit);
  for(let r=0;r<rows+2;r++){
-  const entry=timeline.length?timeline.newest(r):preview[r],pixels=entry?Array.from({length:cols},(_,x)=>x<entry.width?entry.colors[entry.mask[x%entry.mask.length]?0:1]:null):null;
+  const entry=timeline.length?timeline.newest(r):preview[r],pixels=entry?Array.from({length:cols},(_,x)=>entry.colors[entry.mask[x%entry.mask.length]?0:1]):null;
   for(let x=0;x<cols;x++)square(ctx,x,r,pixels?.[x],weaveUnit);
  }
  ctx.strokeStyle='#000';ctx.lineWidth=1;for(let x=0;x<=cols;x++){ctx.beginPath();ctx.moveTo(x*weaveUnit+.5,0);ctx.lineTo(x*weaveUnit+.5,(rows+2)*weaveUnit);ctx.stroke();}for(let y=0;y<=rows+2;y++){ctx.beginPath();ctx.moveTo(0,y*weaveUnit+.5);ctx.lineTo(cols*weaveUnit,y*weaveUnit+.5);ctx.stroke();}ctx.restore();ctx.strokeStyle='#000';ctx.strokeRect(.5,.5,cols*weaveUnit,rows*weaveUnit);
@@ -126,16 +126,24 @@ addEventListener('keydown',e=>{if(e.code==='Space'&&!e.target.closest('input,sel
 function saveSession(){
  try {sessionStorage.setItem('mglaa-instrument-session',JSON.stringify({weave:selectedWeave,palettes:[...paletteOverrides],instruments:[...instrumentOverrides],custom:[...getWeave('custom').threading],timeline:timeline.toJSON(),visualRow}));} catch {}
 }
+const exportPreview=document.querySelector('#export-preview'),exportDocument=document.querySelector('#export-document'),exportDownload=document.querySelector('#export-download');
+let exportURL=null;
+document.querySelector('#export-back').addEventListener('click',()=>exportPreview.close());
+exportPreview.addEventListener('close',()=>{
+ exportDocument.removeAttribute('src');exportDownload.removeAttribute('href');
+ if(exportURL){URL.revokeObjectURL(exportURL);exportURL=null;}
+ exportButton.focus();
+});
 exportButton.addEventListener('click',async()=>{
  if(exportButton.disabled)return;
  stop();saveSession();exportButton.disabled=true;exportButton.setAttribute('aria-busy','true');
  try {
-  const {createPatternPDF}=await import('./pattern-pdf.js');
+  const {createPatternPDF}=await import('./pattern-pdf.js?v=full-width-1');
   const snapshot=new PatternTimeline(timeline.toJSON());
   const bytes=await createPatternPDF(snapshot.length?snapshot.newestFirst():preview,snapshot.length?snapshot.width:cols,{yieldPage:()=>new Promise(resolve=>setTimeout(resolve,0))});
-  const url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),link=document.createElement('a');
-  link.href=url;link.download='mglaa-pattern-'+new Date().toISOString().replace(/[:.]/g,'-')+'.pdf';document.body.append(link);link.click();link.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),60000);status.textContent='Pattern PDF exported';
+  exportURL=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+  exportDownload.href=exportURL;exportDownload.download='mglaa-pattern-'+new Date().toISOString().replace(/[:.]/g,'-')+'.pdf';
+  exportDocument.src=exportURL;exportPreview.showModal();status.textContent='Pattern PDF preview ready';
  } catch(error){status.textContent='Could not export the pattern. Please try again.';console.error(error);}
  finally {exportButton.disabled=false;exportButton.removeAttribute('aria-busy');}
 });

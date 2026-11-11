@@ -14,7 +14,7 @@ export async function createPatternPDF(rows,width,{yieldPage=()=>Promise.resolve
   while(!next.done){
     const page=doc.addPage([pageWidth,pageHeight]);let height=0;
     while(height<perPage&&!next.done){
-      const row=next.value,y=pageHeight-margin-(height+1)*cell,rowWidth=Math.min(width,row.width);
+      const row=next.value,y=pageHeight-margin-(height+1)*cell,rowWidth=width;
       page.drawRectangle({x:margin,y,width:rowWidth*cell,height:cell,color:color(row.colors[1])});
       for(let x=0;x<rowWidth;){
         if(!row.mask[x%row.mask.length]){x++;continue;}

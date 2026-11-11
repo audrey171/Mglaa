@@ -41,3 +41,9 @@
 .picker-tools #picker{margin-left:auto}
 
 #footer #play,#footer #play[aria-pressed=true]{margin-right:auto}
+
+#export-preview{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#fff;color:#000}
+#export-preview[open]{display:flex;flex-direction:column}
+.export-tools{display:flex;justify-content:space-between;padding:16px;flex:none}
+.export-tools button,.export-tools a{border:0;padding:0;background:none;color:#0000ff;text-decoration:underline;font:16px/1.2 "Times New Roman",Times,serif;cursor:pointer}
+#export-document{display:block;flex:1;width:100%;min-height:0;border:0;background:#fff}
