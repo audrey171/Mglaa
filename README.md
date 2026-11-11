@@ -2,9 +2,11 @@
 
 An instrument that turns colors and weaving patterns into music.
 
-[Play Mglaa](https://mglaa.com) · [Instructions](https://mglaa.com/about-instructions.html) · [How it works](https://mglaa.com/about-how-it-works.html)
+[Play Mglaa](https://mglaa.com)
+[Instructions](https://mglaa.com/about-instructions.html) 
+[How it works](https://mglaa.com/about-how-it-works.html)
 
-Choose two colors and one of 48 weaving patterns, or draw your own. The colors set the harmony; the pattern shapes the melody. Your changes build a scrolling textile that you can explore and export as a PDF.
+Choose two colors and a pixel weaving patterns, or draw your own. The colors set the harmony, the pattern shapes the melody. Your changes build a scrolling textile that you can save as a pdf.
 
 ## Development
 
