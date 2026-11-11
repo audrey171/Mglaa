@@ -38,19 +38,19 @@ function applyInstruments(){const pair=instrumentOverrides.get(selectedWeave)??g
 applyInstruments();
 function makeSong(){return weaveLoop(patternColors,getWeave(selectedWeave),loopLength);}
 const panelPalette=document.querySelector('#panel-palette');
-function selectColor(index){stopSavedLoop();patternSelected=index;const c=colorSong(patternColors[index]);position={h:c.h,s:c.s||.7,l:c.l};drawPicker();update();}
+function selectColor(index){if(index!==patternSelected)stopSavedLoop();savedSelection=-1;patternSelected=index;const c=colorSong(patternColors[index]);position={h:c.h,s:c.s||.7,l:c.l};drawPicker();update();}
 const savedSwatches=document.querySelector('#saved-swatches');
 let savedColors=Array(16).fill(null),savedSelection=-1,savedLoop=-1,savedLoopTarget=0,nextSavedChange=0;
 try {const stored=JSON.parse(localStorage.getItem('mglaa-saved-colors')||'[]');if(Array.isArray(stored))savedColors=savedColors.map((_,i)=>typeof stored[i]==='string'?normalizeHex(stored[i]):null);} catch {}
 function renderSavedColors(){
- [...savedSwatches.children].forEach((button,i)=>{button.style.backgroundColor=savedColors[i]??'#fff';button.setAttribute('aria-pressed',String(i===(savedLoop>=0?savedLoop:savedSelection)));button.setAttribute('aria-label',savedColors[i]?`Saved color ${i+1}: ${savedColors[i]}. Apply and cycle; tap selected slot again to replace.`:`Save current color in slot ${i+1}`);});
+ [...savedSwatches.children].forEach((button,i)=>{button.style.backgroundColor=savedColors[i]??'#fff';button.setAttribute('aria-pressed',String(i===(savedLoop>=0?savedLoop:savedSelection)));button.setAttribute('aria-label',savedColors[i]?`Saved color ${i+1}: ${savedColors[i]}. Apply and cycle; tap the same slot again to replace.`:`Save current color in slot ${i+1}`);});
 }
 function stopSavedLoop(){savedLoop=-1;renderSavedColors();}
 for(let i=0;i<16;i++){
  const button=document.createElement('button');button.type='button';
  button.addEventListener('click',()=>{
-  if(!savedColors[i]||i===(savedLoop>=0?savedLoop:savedSelection)){
-   stopSavedLoop();savedColors[i]=patternColors[patternSelected];savedSelection=i;
+  if(!savedColors[i]||i===savedSelection){
+   stopSavedLoop();savedColors[i]=patternColors[patternSelected];savedSelection=-1;
    try {localStorage.setItem('mglaa-saved-colors',JSON.stringify(savedColors));} catch {}
    status.textContent='Color saved';
   }else{
@@ -65,7 +65,7 @@ function advanceSavedColors(){
  if(!playing||savedLoop<0||Date.now()<nextSavedChange)return;
  const filled=savedColors.map((color,i)=>color?i:-1).filter(i=>i>=0);
  if(filled.length<2){stopSavedLoop();return;}
- savedLoop=filled[(filled.indexOf(savedLoop)+1)%filled.length];savedSelection=savedLoop;nextSavedChange=Date.now()+6000;
+ savedLoop=filled[(filled.indexOf(savedLoop)+1)%filled.length];savedSelection=-1;nextSavedChange=Date.now()+6000;
  patternSelected=savedLoopTarget;choose(savedColors[savedLoop],null,true);renderSavedColors();
 }
 patternColors.forEach((color,index)=>{
