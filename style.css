@@ -52,3 +52,5 @@
 body[data-playing=true] #saved-swatches[data-looping=true] button[aria-pressed=true]::after{animation:saved-swatch-blink 1.2s steps(1,end) infinite}
 @keyframes saved-swatch-blink{0%,100%{opacity:1}50%{opacity:0}}
 @media(prefers-reduced-motion:reduce){body[data-playing=true] #saved-swatches[data-looping=true] button[aria-pressed=true]::after{animation:none}}
+
+#storage-warning{position:fixed;z-index:100;top:0;left:0;right:0;margin:0;padding:12px;background:#fff;color:#000;border-bottom:1px solid #000;font:16px Times New Roman,serif}

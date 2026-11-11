@@ -1,3 +1,4 @@
+import {readSessionRecord,writeSessionRecord} from './session-store.js';
 import {WEAVES,patternRow,getWeave,updateCustom} from './weave-presets.js?v=library-3';
 import {colorSong,paletteSong,hslToHex,normalizeHex,colorLoop,weaveLoop,STEP} from './color-model.js?v=library-3';
 import {ColorAudio} from './color-audio.js?v=background-1';
@@ -5,9 +6,11 @@ import {readSettings} from './settings.js?v=color-speed-1';
 import {PatternTimeline,snapshotRow} from './timeline.js?v=recorded-1';
 const field=document.querySelector('#color-field'),score=document.querySelector('#score'),sat=document.querySelector('#saturation'),playButton=document.querySelector('#play'),status=document.querySelector('#status'),sound=new ColorAudio(),paletteDialog=document.querySelector('#palette-dialog');
 const randomWeave=()=>WEAVES[Math.floor(Math.random()*WEAVES.length)].id;
+let sessionId;try{sessionId=sessionStorage.getItem('mglaa-session-id')||crypto.randomUUID();sessionStorage.setItem('mglaa-session-id',sessionId);}catch{sessionId=crypto.randomUUID();}
+let restoredRecord;try{restoredRecord=await readSessionRecord(sessionId);}catch{}
 function readSession(){
  try {
-  const state=JSON.parse(sessionStorage.getItem('mglaa-instrument-session')||'{}');
+  const state=restoredRecord??JSON.parse(sessionStorage.getItem('mglaa-instrument-session')||'{}');
   const ids=new Set([...WEAVES.map(p=>p.id),'custom']);
   const palettes=(state.palettes??[]).filter(([id,colors])=>ids.has(id)&&Array.isArray(colors)&&colors.length===2&&colors.every(c=>typeof c==='string'&&normalizeHex(c)));
   const instruments=(state.instruments??[]).filter(([id,pair])=>ids.has(id)&&Array.isArray(pair)&&pair.length===2&&Number.isInteger(pair[0])&&pair[0]>=0&&pair[0]<16&&Number.isInteger(pair[1])&&pair[1]>=16&&pair[1]<32);
@@ -48,7 +51,7 @@ try {
  const banks=Array.isArray(stored)?stored:[legacy,[]];
  savedBanks=savedBanks.map((bank,b)=>bank.map((_,i)=>typeof banks[b]?.[i]==='string'?normalizeHex(banks[b][i]):null));
 } catch {}
-function persistSavedColors(){try{localStorage.setItem('mglaa-saved-color-banks',JSON.stringify(savedBanks));}catch{}}
+function persistSavedColors(){try{localStorage.setItem('mglaa-saved-color-banks',JSON.stringify(savedBanks));}catch{storageWarning('Saved colors could not be stored. They will remain available until this page closes.');}}
 function renderSavedColors(){
  const colors=savedBanks[patternSelected],loop=savedLoops[patternSelected];
  savedSwatches.dataset.looping=String(loop>=0);
@@ -190,9 +193,17 @@ sat.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key
 playButton.addEventListener('click',()=>playing||starting?stop():start());document.querySelector('#palette-close').addEventListener('click',()=>paletteDialog.close());
 paletteDialog.addEventListener('pointerdown',e=>{const r=paletteDialog.getBoundingClientRect();if(e.target===paletteDialog&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))paletteDialog.close();});
 addEventListener('keydown',e=>{if(e.code==='Space'&&!e.target.closest('input,select,button,dialog')){e.preventDefault();playing?stop():start();}if(e.key==='Escape'&&!document.querySelector('dialog[open]'))stop();});
-function saveSession(){
- try {sessionStorage.setItem('mglaa-instrument-session',JSON.stringify({weave:selectedWeave,palettes:[...paletteOverrides],instruments:[...instrumentOverrides],custom:[...getWeave('custom').threading],timeline:timeline.toJSON(),visualRow,recordedOnly:true}));} catch {}
+let storageFailed=false,saveQueue=Promise.resolve();
+function storageWarning(message){
+ let warning=document.querySelector('#storage-warning');if(!warning){warning=document.createElement('p');warning.id='storage-warning';warning.setAttribute('role','alert');document.body.append(warning);}warning.textContent=message;
 }
+function saveSession(){
+ const state={weave:selectedWeave,palettes:[...paletteOverrides],instruments:[...instrumentOverrides],custom:[...getWeave('custom').threading],timeline:timeline.toJSON(),visualRow,recordedOnly:true};
+ saveQueue=saveQueue.then(async()=>{try{await writeSessionRecord(sessionId,state);storageFailed=false;document.querySelector('#storage-warning')?.remove();try{sessionStorage.removeItem('mglaa-instrument-session');}catch{}return true;}catch{storageFailed=true;storageWarning('Browser storage is full or unavailable. Your entire pattern is still here—export it before closing this page.');return false;}});
+ return saveQueue;
+}
+addEventListener('beforeunload',e=>{if(storageFailed&&timeline.length){e.preventDefault();e.returnValue='';}});
+setInterval(()=>{if(timeline.length)saveSession();},15000);
 exportButton.addEventListener('click',async()=>{
  if(exportButton.disabled||!timeline.length)return;
  saveSession();exportButton.disabled=true;exportButton.setAttribute('aria-busy','true');
@@ -205,15 +216,25 @@ exportButton.addEventListener('click',async()=>{
  previewWindow=window.open('export-preview.html?id='+crypto.randomUUID(),'_blank');
  if(!previewWindow){clearTimeout(readyTimer);removeEventListener('message',onReady);exportButton.removeAttribute('aria-busy');update();status.textContent='Allow a new tab to preview your pattern.';return;}
  try {
-  const snapshot=new PatternTimeline(timeline.toJSON());
-  const [{createPatternPDF}]=await Promise.all([import('./pattern-pdf.js?v=brand-1'),ready]);
-  const bytes=await createPatternPDF(snapshot.newestFirst(),Math.max(cols,snapshot.width),{yieldPage:()=>new Promise(resolve=>setTimeout(resolve,0))});
-  if(!previewWindow.closed)previewWindow.postMessage({type:'mglaa-preview-pdf',bytes,filename:'mglaa-pattern-'+new Date().toISOString().replace(/[:.]/g,'-')+'.pdf'},location.origin,[bytes.buffer]);
+  const sections=timeline.toJSON(),width=Math.max(cols,timeline.width);
+  await ready;
+  await new Promise((resolve,reject)=>{
+   const worker=new Worker('./export-worker.js',{type:'module'});
+   const closed=setInterval(()=>{if(previewWindow.closed){finish();reject(new Error('Preview closed'));}},500);
+   function finish(){clearInterval(closed);worker.terminate();}
+   worker.onerror=()=>{finish();reject(new Error('Export failed. Your full pattern is still available to retry.'));};
+   worker.onmessage=({data})=>{
+    if(data.error){finish();reject(new Error(data.error));}
+    else if(data.blob){previewWindow.postMessage({type:'mglaa-preview-pdf',blob:data.blob,filename:'mglaa-pattern-'+Date.now()+'.pdf'},location.origin);finish();resolve();}
+    else if(!previewWindow.closed)previewWindow.postMessage({type:'mglaa-preview-progress',rows:data.rows,total:data.total},location.origin);
+   };
+   worker.postMessage({sections,width});
+  });
   status.textContent='Pattern PDF preview opened in a new tab';
  } catch(error){status.textContent='Could not preview the pattern. Please try again.';if(!previewWindow.closed)previewWindow.postMessage({type:'mglaa-preview-error'},location.origin);console.error(error);}
  finally {clearTimeout(readyTimer);removeEventListener('message',onReady);exportButton.removeAttribute('aria-busy');update();}
 });
-document.querySelector('#info').addEventListener('click',saveSession);
+document.querySelector('#info').addEventListener('click',async e=>{e.preventDefault();if(await saveSession())location.href=e.currentTarget?.href??'about.html';});
 addEventListener('pagehide',saveSession);
 addEventListener('pagehide',stop);document.addEventListener('visibilitychange',()=>{if(playing){if(!document.hidden&&sound.context.state!=='running')sound.context.resume().catch(()=>{});schedule();saveSession();}});addEventListener('resize',resize);
 function advanceTimeline(){let changed=false;if(playing)while(visualQueue.length&&visualQueue[0].time<=sound.context.currentTime){const v=visualQueue.shift();shown=v.song;displayStep=v.step;lastRowTime=v.time;timeline.add(getWeave(v.weave),-++visualRow,v.song.colors,cols);changed=true;}if(changed)update();}
