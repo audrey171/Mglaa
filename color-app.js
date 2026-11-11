@@ -43,6 +43,7 @@ const savedSwatches=document.querySelector('#saved-swatches');
 let savedColors=Array(16).fill(null),savedSelection=-1,savedLoop=-1,savedLoopTarget=0,nextSavedChange=0;
 try {const stored=JSON.parse(localStorage.getItem('mglaa-saved-colors')||'[]');if(Array.isArray(stored))savedColors=savedColors.map((_,i)=>typeof stored[i]==='string'?normalizeHex(stored[i]):null);} catch {}
 function renderSavedColors(){
+ savedSwatches.dataset.looping=String(savedLoop>=0);
  [...savedSwatches.children].forEach((button,i)=>{button.style.backgroundColor=savedColors[i]??'#fff';button.setAttribute('aria-pressed',String(i===(savedLoop>=0?savedLoop:savedSelection)));button.setAttribute('aria-label',savedColors[i]?`Saved color ${i+1}: ${savedColors[i]}. Apply and cycle; tap the same slot again to replace.`:`Save current color in slot ${i+1}`);});
 }
 function stopSavedLoop(){savedLoop=-1;renderSavedColors();}

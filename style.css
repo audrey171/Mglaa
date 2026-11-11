@@ -45,5 +45,10 @@
 
 
 #saved-swatches{display:grid;grid-template-columns:repeat(16,var(--cell));width:max-content;border-top:1px solid #000;border-left:1px solid #000;margin-top:var(--cell)}
-#saved-swatches button{box-sizing:border-box;width:var(--cell);height:var(--cell);padding:0;border:0;border-right:1px solid #000;border-bottom:1px solid #000;background:#fff;cursor:pointer}
-#saved-swatches button[aria-pressed=true]{outline:2px solid #000;outline-offset:2px;z-index:1}
+#saved-swatches button{position:relative;box-sizing:border-box;width:var(--cell);height:var(--cell);padding:0;border:0;border-right:1px solid #000;border-bottom:1px solid #000;background:#fff;cursor:pointer}
+#saved-swatches button[aria-pressed=true],#saved-swatches button:focus-visible{outline:none}
+#saved-swatches button::after{content:"";position:absolute;inset:1px;border:1px solid #fff;box-shadow:inset 0 0 0 1px #000;pointer-events:none;opacity:0}
+#saved-swatches button[aria-pressed=true]::after,#saved-swatches button:focus-visible::after{opacity:1}
+body[data-playing=true] #saved-swatches[data-looping=true] button[aria-pressed=true]::after{animation:saved-swatch-blink 1.2s steps(1,end) infinite}
+@keyframes saved-swatch-blink{0%,100%{opacity:1}50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){body[data-playing=true] #saved-swatches[data-looping=true] button[aria-pressed=true]::after{animation:none}}
