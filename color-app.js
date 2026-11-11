@@ -39,36 +39,58 @@ function applyInstruments(){const pair=instrumentOverrides.get(selectedWeave)??g
 applyInstruments();
 function makeSong(){return weaveLoop(patternColors,getWeave(selectedWeave),loopLength);}
 const panelPalette=document.querySelector('#panel-palette');
-function selectColor(index){if(index!==patternSelected)stopSavedLoop();savedSelection=-1;patternSelected=index;const c=colorSong(patternColors[index]);position={h:c.h,s:c.s||.7,l:c.l};drawPicker();update();}
+function selectColor(index){patternSelected=index;savedSelections[index]=-1;const c=colorSong(patternColors[index]);position={h:c.h,s:c.s||.7,l:c.l};renderSavedColors();drawPicker();update();}
 const savedSwatches=document.querySelector('#saved-swatches');
-let savedColors=Array(16).fill(null),savedSelection=-1,savedLoop=-1,savedLoopTarget=0;
-try {const stored=JSON.parse(localStorage.getItem('mglaa-saved-colors')||'[]');if(Array.isArray(stored))savedColors=savedColors.map((_,i)=>typeof stored[i]==='string'?normalizeHex(stored[i]):null);} catch {}
+let savedBanks=[Array(16).fill(null),Array(16).fill(null)],savedSelections=[-1,-1],savedLoops=[-1,-1];
+try {
+ const stored=JSON.parse(localStorage.getItem('mglaa-saved-color-banks')||'null');
+ const legacy=JSON.parse(localStorage.getItem('mglaa-saved-colors')||'[]');
+ const banks=Array.isArray(stored)?stored:[legacy,[]];
+ savedBanks=savedBanks.map((bank,b)=>bank.map((_,i)=>typeof banks[b]?.[i]==='string'?normalizeHex(banks[b][i]):null));
+} catch {}
+function persistSavedColors(){try{localStorage.setItem('mglaa-saved-color-banks',JSON.stringify(savedBanks));}catch{}}
 function renderSavedColors(){
- savedSwatches.dataset.looping=String(savedLoop>=0);
- [...savedSwatches.children].forEach((button,i)=>{button.style.backgroundColor=savedColors[i]??'#fff';button.setAttribute('aria-pressed',String(i===(savedLoop>=0?savedLoop:savedSelection)));button.setAttribute('aria-label',savedColors[i]?`Saved color ${i+1}: ${savedColors[i]}. Apply and cycle; tap the same slot again to replace.`:`Save current color in slot ${i+1}`);});
+ const colors=savedBanks[patternSelected],loop=savedLoops[patternSelected];
+ savedSwatches.dataset.looping=String(loop>=0);
+ [...savedSwatches.children].forEach((button,i)=>{button.style.backgroundColor=colors[i]??'#fff';button.setAttribute('aria-pressed',String(i===(loop>=0?loop:savedSelections[patternSelected])));button.setAttribute('aria-label',colors[i]?`Saved color ${i+1}: ${colors[i]}. Apply and cycle; tap the same slot again to remove.`:`Save current color in slot ${i+1}`);});
 }
-function stopSavedLoop(){savedLoop=-1;renderSavedColors();}
+function stopSavedLoop(all=false){if(all)savedLoops=[-1,-1];else savedLoops[patternSelected]=-1;renderSavedColors();}
 for(let i=0;i<16;i++){
  const button=document.createElement('button');button.type='button';
  button.addEventListener('click',()=>{
-  if(!savedColors[i]||i===savedSelection){
-   stopSavedLoop();savedColors[i]=patternColors[patternSelected];savedSelection=-1;
-   try {localStorage.setItem('mglaa-saved-colors',JSON.stringify(savedColors));} catch {}
-   status.textContent='Color saved';
+  const bank=patternSelected,colors=savedBanks[bank];
+  if(colors[i]&&savedSelections[bank]===i){
+   colors[i]=null;savedSelections[bank]=-1;
+   const filled=colors.map((c,j)=>c?j:-1).filter(j=>j>=0);
+   if(filled.length<2)savedLoops[bank]=-1;
+   else if(savedLoops[bank]===i)savedLoops[bank]=filled[0];
+   persistSavedColors();status.textContent='Saved color removed';
+  }else if(!colors[i]){
+   colors[i]=patternColors[bank];savedSelections[bank]=-1;persistSavedColors();status.textContent='Color saved';
   }else{
-   choose(savedColors[i],null,true);savedSelection=i;savedLoopTarget=patternSelected;
-   savedLoop=savedColors.filter(Boolean).length>1?i:-1;nextSavedChange=Date.now()+savedColorInterval;start();
+   const alreadyLooping=savedLoops.some(j=>j>=0);
+   choose(colors[i],null,true);savedSelections[bank]=i;
+   savedLoops[bank]=colors.filter(Boolean).length>1?i:-1;
+   if(!alreadyLooping)nextSavedChange=Date.now()+savedColorInterval;
+   start();
   }
   renderSavedColors();
  });savedSwatches.append(button);
 }
 renderSavedColors();
 function advanceSavedColors(){
- if(!playing||savedLoop<0||Date.now()<nextSavedChange)return;
- const filled=savedColors.map((color,i)=>color?i:-1).filter(i=>i>=0);
- if(filled.length<2){stopSavedLoop();return;}
- savedLoop=filled[(filled.indexOf(savedLoop)+1)%filled.length];savedSelection=-1;nextSavedChange=Date.now()+savedColorInterval;
- patternSelected=savedLoopTarget;choose(savedColors[savedLoop],null,true);renderSavedColors();
+ if(!playing||!savedLoops.some(i=>i>=0)||Date.now()<nextSavedChange)return;
+ nextSavedChange=Date.now()+savedColorInterval;
+ let changed=false;
+ savedBanks.forEach((colors,bank)=>{
+  if(savedLoops[bank]<0)return;
+  const filled=colors.map((c,i)=>c?i:-1).filter(i=>i>=0);
+  if(filled.length<2){savedLoops[bank]=-1;return;}
+  savedLoops[bank]=filled[(filled.indexOf(savedLoops[bank])+1)%filled.length];
+  patternColors[bank]=colors[savedLoops[bank]];changed=true;
+ });
+ if(changed){paletteOverrides.set(selectedWeave,[...patternColors]);const c=colorSong(patternColors[patternSelected]);position={h:c.h,s:c.s,l:c.l};refreshMusic();update();drawPicker();drawDraft();draw();}
+ renderSavedColors();
 }
 patternColors.forEach((color,index)=>{
  const button=document.createElement('button');button.type='button';button.className='pixel-button';button.style.backgroundColor=color;
@@ -103,7 +125,7 @@ function resize(){
 }
 function drawDraft(){const preset=getWeave(selectedWeave),count=draftColumns;fit(draftCanvas,count*unit+1,4*unit+1);const ctx=draftCanvas.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,count*unit+1,4*unit+1);for(let y=0;y<4;y++)for(let x=0;x<count;x++)square(ctx,x,y,preset.threading[x%preset.threading.length]===3-y?patternColors[0]:patternColors[1]);draftCanvas.setAttribute('aria-label',preset.name+' threading draft, '+count+' visible columns, '+preset.threading.length+' columns per repeat');}
 function previewWeave(){preview.length=0;if(!timeline.length)visualRow=0;for(let row=0;row<rows+2;row++)preview.push(snapshotRow(getWeave(selectedWeave),row,patternColors,cols));if(!timeline.length)frozenOffset=1;}
-weaveSelect.addEventListener('change',()=>{stopSavedLoop();selectedWeave=weaveSelect.value;visualRow=0;applyInstruments();patternColors=[...(paletteOverrides.get(selectedWeave)??getWeave(selectedWeave).colors??patternColors)];drawDraft();refreshMusic();previewWeave();draw();draftViewport.scrollLeft=0;document.body.dataset.weave=selectedWeave;draftCanvas.style.cursor=selectedWeave==='custom'?'crosshair':'default';update();});
+weaveSelect.addEventListener('change',()=>{stopSavedLoop(true);selectedWeave=weaveSelect.value;visualRow=0;applyInstruments();patternColors=[...(paletteOverrides.get(selectedWeave)??getWeave(selectedWeave).colors??patternColors)];drawDraft();refreshMusic();previewWeave();draw();draftViewport.scrollLeft=0;document.body.dataset.weave=selectedWeave;draftCanvas.style.cursor=selectedWeave==='custom'?'crosshair':'default';update();});
 let draftDragging=false,draftColumn=0;
 function paintDraft(e){
  const r=draftCanvas.getBoundingClientRect(),p=getWeave('custom'),column=Math.max(0,Math.min(draftColumns-1,Math.floor((e.clientX-r.left)/unit)))%p.threading.length,shaft=3-Math.max(0,Math.min(3,Math.floor((e.clientY-r.top)/unit)));
